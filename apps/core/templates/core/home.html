@@ -1,0 +1,34 @@
+{% extends 'core/main.html' %}
+
+
+{% block content %}
+<div class="container">
+  
+    
+  <!--  Verify Message  -->
+  
+  
+  <!-- Search Box -->
+  <div class="card mb-5 mt-4">
+    <div class="card-body">
+      <div class="container-fluid">
+        <form class="d-flex" role="search">
+          <h5 class="card-text mr-4"> Search</h5>
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <br>
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- View Courses -->
+  
+      {% include 'core/components/viewCourse.html' %}
+    
+  
+  
+</div>
+
+
+{% endblock content %}

@@ -1,0 +1,28 @@
+<div class="row">
+ 
+ {% for course in courses %}
+  
+ 
+ <div class="col-md-4">
+   <div class="card mb-4" style="width: 18rem;">
+     <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="Course Image" width="300" height="150">
+     <div class="card-body">
+       <h5 class="card-title">{{ course.name }}</h5>
+       <p class="card-text">
+         {{ course.description }}
+        </p>
+          {% if course.is_owned %}
+          <a href="open" class="btn btn-primary">    
+          Open
+          {% else %}
+          <a href="add-to-cart" class="btn btn-primary">
+          Add to Cart
+          {% endif %}
+          
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  {% endfor %}
+</div>
