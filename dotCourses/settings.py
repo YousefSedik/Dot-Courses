@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'debug_toolbar',
+    'django_htmx',
 
     # Internal Apps 
     
@@ -69,6 +70,8 @@ MIDDLEWARE = [
 
     # External Middleware
     'allauth.account.middleware.AccountMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
+
 ]
 
 

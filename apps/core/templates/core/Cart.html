@@ -1,0 +1,57 @@
+{% extends 'core/main.html' %}
+
+
+{% block content %}
+<div class="container text-center">
+{% if courses is None %}
+<h1>There Are No Courses in the Cart .. </h1>
+{% else %}
+    <div class="row">
+        <div class="col-9">
+            {% for course in courses %}
+            <div class="card mb-3 obj" id="course-{{course.id}}">
+                <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="Course Thumbnail" height="200" width="300">
+                <div class="card-body">
+                    <h5 class="card-title">{{ course.name }}</h5>
+                    <p class="card-text"> {{ course.description }} </p>
+                    <p class="card-text"><small class="text-body-secondary">By {{course.instructor.first_name}}</small>
+                    </p>
+                    <button class="btn btn-danger" 
+                    hx-delete="{% url 'core:DeleteFromCart' course.id %}"
+                    hx-target="#course-{{course.id}}"
+                    hx-swap="delete"
+                    onclick="decrement_cart_counter()"
+                    >
+                        Remove From Cart
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+
+
+        </div>
+        <div class="col-1">
+            <h3>Total Price:</h3>
+            <h4> 4322</h4>
+            <button class="btn btn-primary" href="{% url 'core:Checkout' %}""> Checkout</button>
+        </div>
+    </div>
+    
+    {% endif %}
+</div>  
+<script>
+    function setup_cart_counter(){
+        
+        data = document.getElementsByClassName("card mb-3 obj")
+        document.getElementById('counter').innerHTML = data.length
+    }
+    setup_cart_counter()
+    
+    function decrement_cart_counter(){
+        counter = parseInt(document.getElementById('counter').innerHTML) 
+        counter -= 1 
+        document.getElementById('counter').innerHTML = counter
+    }
+</script>
+{% endblock content %}
+    

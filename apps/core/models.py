@@ -6,6 +6,9 @@ User = get_user_model()
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    # class Meta:
+    #     primary_key = [User, 'Course']
+        
     def __str__(self):
         return f'{self.user} have {self.course} in his cart'
 

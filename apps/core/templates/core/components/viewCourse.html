@@ -1,28 +1,50 @@
 <div class="row">
- 
- {% for course in courses %}
-  
- 
- <div class="col-md-4">
-   <div class="card mb-4" style="width: 18rem;">
-     <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="Course Image" width="300" height="150">
-     <div class="card-body">
-       <h5 class="card-title">{{ course.name }}</h5>
-       <p class="card-text">
-         {{ course.description }}
+
+  {% for course in courses %}
+
+
+  <div class="col-md-4">
+    <div class="card mb-4" style="width: 18rem;">
+      <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="Course Image" width="300" height="150">
+      <div class="card-body">
+        <h5 class="card-title">{{ course.name }}</h5>
+        <p class="card-text">
+          {{ course.description }}
         </p>
-          {% if course.is_owned %}
-          <a href="open" class="btn btn-primary">    
-          Open
+        <div id="card-{{ course.id }}">
+          {% if course.is_owned %} <button href="open" class="btn btn-primary"> Open</button> 
+          {% elif course.id in in_cart %}
+          <button href="{% url 'core:Checkout' %}" class="btn btn-primary"> Added To Cart.. Checkout </button>
+
           {% else %}
-          <a href="add-to-cart" class="btn btn-primary">
-          Add to Cart
+          <button onclick="increment_cart()" class="btn btn-primary" hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="outerHTML"
+            hx-target="#card-{{ course.id }}">
+            Add to Cart
+          </button>
+          {% if course.price %}
+          <button class="btn btn-primary"> {{course.price}} </button>
+          {% else %}
+          <button class="btn btn-primary"> Free </button>
+
           {% endif %}
-          
-        </a>
+          {% endif %}
+
+
+          <script>
+            function increment_cart() {
+                var current = document.getElementById('counter').innerHTML;
+                var currentInt = parseInt(current); 
+                var incrementedValue = currentInt + 1;
+                document.getElementById('counter').innerHTML = incrementedValue;
+            }
+        </script>
+        
+
+
+        </div>
       </div>
     </div>
   </div>
-  
+
   {% endfor %}
 </div>
