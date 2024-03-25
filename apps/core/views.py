@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http.response import HttpResponseRedirect, HttpResponse
-from django.views.generic import ListView, View, DetailView
+from django.views.generic import ListView, View, DetailView, RedirectView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.urls import reverse_lazy
@@ -22,24 +22,6 @@ class HomeView(ListView):
             )
         return queryset
     
-    def get_context_data(self, **kwargs):
-        context = super(HomeView, self).get_context_data(**kwargs)
-        if self.request.user.is_authenticated: 
-            context['cart_counter'] = self.request.user.cart_set.count()
-            cart_set = self.request.user.cart_set.values_list('course_id', flat=True)
-            context['in_cart'] = set(cart_set)
-        else:
-            in_cart = self.request.COOKIES.get('cart') 
-            if in_cart:
-                in_cart = set(map(int, in_cart.split()))
-                in_cart = set(in_cart)
-                context['in_cart'] = in_cart
-                context['cart_counter'] = len(in_cart)
-            else:
-                context['cart_counter'] = 0
-
-        return context
-    
 
 class AddToCartView(View):
     http_method_names = ['post']
@@ -49,16 +31,19 @@ class AddToCartView(View):
             '<button href="{% url "core:Checkout" %}" class="btn btn-primary"> Added To Cart.. Checkout </button> '
             )
         if not request.user.is_authenticated:
-            cart_ids = request.COOKIES.get('cart', '') 
-            cart_ids += f'{kwargs["course_id"]} '
-            response.set_cookie('cart', cart_ids)  
+            cart_ids = request.COOKIES.get('cart', '')
+            list_of_cart_ids = list(map(int, cart_ids.split()))
+            if kwargs["course_id"] not in list_of_cart_ids:
+                cart_ids += f'{kwargs["course_id"]} '
+                response.set_cookie('cart', cart_ids)
             
         else:
             course = get_object_or_404(Course, pk=kwargs['course_id'])
             Cart.objects.get_or_create(course=course, user=request.user)
             
         return response
-            
+
+from django.db.models import Sum
 class CartView(ListView):
     template_name = 'core/Cart.html'
     model = Cart 
@@ -77,6 +62,16 @@ class CartView(ListView):
         else:
             queryset = None
         return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super(CartView, self).get_context_data(**kwargs)
+        total_price = 0 
+        for obj in context['courses']:
+            if obj.price:
+                total_price += obj.price
+            
+        context['total_price'] = total_price 
+        return context
     
     
 class DeleteFromCartView(View):
@@ -105,4 +100,39 @@ class CheckOutView(LoginRequiredMixin, View):
     pass 
 
 class AboutCourseView(DetailView):
-    pass 
+    model = Course
+    template_name = 'core/AboutCourse.html'
+    context_object_name = 'course'
+    slug_field = 'slug'	
+    slug_url_kwarg = 'course_slug'	
+    
+    def get_queryset(self):
+        queryset = super(AboutCourseView, self).get_queryset().select_related('instructor')
+
+        if self.request.user.is_authenticated:
+            queryset = queryset.annotate(
+                is_owned=Exists(Purchase.objects.filter(student=self.request.user, course=OuterRef('pk')))
+            )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(AboutCourseView, self).get_context_data(**kwargs)
+        context['content'] = Video.objects.filter(course=kwargs['object']).select_related()
+        return context
+
+class ClearCartCookiesView(View):
+    
+    def get(self, request, **kwargs):
+        response = HttpResponseRedirect('/')
+        if request.user.is_authenticated:
+            user = request.user
+            cookies = request.COOKIES.get('cart')
+            if cookies:
+                list_of_course_ids = list(map(int, cookies.split()))
+                for course_id in list_of_course_ids:
+                    Cart.objects.get_or_create(user=user, course_id=course_id)
+                
+                response.delete_cookie('cart')
+        
+        return response
+

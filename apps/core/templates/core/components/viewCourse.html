@@ -12,19 +12,21 @@
           {{ course.description }}
         </p>
         <div id="card-{{ course.id }}">
-          {% if course.is_owned %} <button href="open" class="btn btn-primary"> Open</button> 
-          {% elif course.id in in_cart %}
-          <button href="{% url 'core:Checkout' %}" class="btn btn-primary"> Added To Cart.. Checkout </button>
-
+          <a href="{% url 'core:about_course' course.slug %}" class="btn btn-primary mb-1 mt-1"> Open</a> 
+          {% if course.id in in_cart %}
+          
+          <button href="{% url 'core:Checkout' %}" class="btn btn-primary mb-1 mt-1"> Added To Cart.. Checkout </button>
+          {% elif course.is_owned %}
+              
           {% else %}
-          <button onclick="increment_cart()" class="btn btn-primary" hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="outerHTML"
+          <button onclick="increment_cart()" class="btn btn-primary mb-1 mt-1" hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="outerHTML"
             hx-target="#card-{{ course.id }}">
             Add to Cart
           </button>
           {% if course.price %}
-          <button class="btn btn-primary"> {{course.price}} </button>
+          <button class="btn btn-primary mb-1 mt-1"> {{course.price }} </button>
           {% else %}
-          <button class="btn btn-primary"> Free </button>
+          <button class="btn btn-primary mb-1 mt-1"> Free </button>
 
           {% endif %}
           {% endif %}

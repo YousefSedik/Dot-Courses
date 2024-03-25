@@ -30,9 +30,17 @@
 
 
         </div>
-        <div class="col-1">
-            <h3>Total Price:</h3>
-            <h4> 4322</h4>
+        <div >
+            
+            {% for course in courses %}
+                <div>
+                    {% if course.price %}
+                        <h5> {{course.name}}: {{course.price}}</h5> 
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <h3>Total Price:<span id="total_price"> {{total_price}} </span></h3>
+                
             <button class="btn btn-primary" href="{% url 'core:Checkout' %}""> Checkout</button>
         </div>
     </div>

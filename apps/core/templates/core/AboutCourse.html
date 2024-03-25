@@ -1,0 +1,67 @@
+{% extends 'core/main.html' %}
+
+
+{% block title %}
+    {{ course.name }}
+{% endblock title %}
+    
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <img src="{{ course.thumbnail.url }}" class="card-img-top" style="width: 100%; height: 200px;" alt="{{ course.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ course.name }}</h5>
+                    <p class="card-text">{{ course.description }}</p>
+                    <p class="card-text">Instructor: {{ course.instructor.first_name }}</p>
+                    
+                    {% if course.price %}
+                    <p class="card-text">Price: ${{ course.price }}</p>
+                    {% if course.discount %}
+                        <p class="card-text">Discount: {{ course.discount }}%</p>
+                        <p class="card-text">Discounted Price: $200</p>
+                    {% endif %}
+                    {% endif %}
+                        
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Course Details</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">Category: {{ course.category.name | title }}</li>
+                        <li class="list-group-item">Duration: {{ course.duration_in_hour }}</li>
+                        <li class="list-group-item">Enrolled Students: {{ course.enrolled_counter }}</li>
+                        <li class="list-group-item">Rating: {{ course.rating }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mt-5">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Course Content</h5>
+                    <ul class="list-group">
+                        
+                        {% if course.is_owned %}
+                            {% for video in content %}
+                                <a href="" class="list-group-item list-group-item-action">{{ video.name }}</a>
+                            {% endfor %}
+                        {% else %}
+                            {% for video in content %}
+                                <li class="list-group-item">{{ video.name }}</li>                            
+                            {% endfor %}
+                        {% endif %}
+                            
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+    

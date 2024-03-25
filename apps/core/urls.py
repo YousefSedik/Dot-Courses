@@ -13,6 +13,6 @@ urlpatterns = [
     path('checkout/', views.CheckOutView.as_view(), name='Checkout'),
     path('cart/', views.CartView.as_view(), name='Cart'),
     path('course/<slug:course_slug>', views.AboutCourseView.as_view(), name='about_course'),
-    
+    path('ClearCartCookies/', views.ClearCartCookiesView.as_view(), name='ClearCartCookies'),
     
 ] + AJAX_urlpatterns
