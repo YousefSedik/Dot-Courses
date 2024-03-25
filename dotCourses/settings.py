@@ -90,6 +90,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.core.context_processor.cart_counter',
             ],
         },
     },
@@ -188,3 +189,5 @@ ACCOUNT_FORMS = {'signup': 'apps.users.forms.MyCustomSignupForm'}
 INTERNAL_IPS = [
     '127.0.0.1'
 ]
+
+LOGIN_REDIRECT_URL = '/ClearCartCookies/'
