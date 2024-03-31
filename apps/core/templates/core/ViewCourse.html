@@ -1,0 +1,40 @@
+{% extends 'core/main.html' %} 
+{% block title %} 
+{{ course.name }}
+{% endblock title %} 
+{% block content %}
+<style>
+  .object {
+    width: 20%; /* Set the width of the object */
+    float: right; /* Float the object to the left */
+  }
+  .video {
+    margin: 0%;
+    padding: 0%;
+  }
+</style>
+    
+    <video class="video" src="{{ video.video.url }}" controls controlsList="nodownload"></video>
+    
+    <div class="object">
+
+    <ul class="list-group">
+
+        {% for video_obj in course_content %} 
+          <a href="{% url 'core:ViewCourse' course_slug=course.slug video_no=video_obj.counter %}"
+           class="list-group-item list-group-item-action 
+            {% if video.counter == video_obj.counter %}
+            active 
+            {% endif %}" aria-current="true">
+            {{ video_obj.name}}
+          </a>
+          {% for test in video_obj.test_set.all %}
+            <a href="{% url 'core:TestCourse' course_slug=course.slug video_id=video_obj.id %}" class="list-group-item list-group-item-action">
+              (Exam) {{ test.title }}
+            </a>
+        {% endfor %}
+          
+        {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

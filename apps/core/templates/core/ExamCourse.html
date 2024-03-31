@@ -1,0 +1,32 @@
+{% extends 'core/main.html' %}
+{% load bootstrap4 %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2 class="mt-4 mb-4">Multiple Choice Questions</h2>
+            {% for page in questions.paginator.page_range %}
+                <a href="?page={{ page }}" class="btn btn-outline-primary mb-2{% if questions.number == page %} active{% endif %}">{{ page }}</a>
+            {% endfor %}
+            <form action="#" method="POST">
+                {% for question in questions %}
+                    <div class="mcq-question">
+                        <p>Question {{ question.id }}: {{ question.question_text }}</p>
+                        {% for option in question.options.all %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="question{{ question.id }}" id="option{{ option.id }}" value="{{ option.id }}">
+                                <label class="form-check-label" for="option{{ option.id }}">{{ option.option_text }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary mt-4">Submit</button>
+            </form>
+            <div class="mt-4">
+              {% bootstrap_pagination questions %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

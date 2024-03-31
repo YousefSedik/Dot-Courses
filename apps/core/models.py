@@ -1,17 +1,20 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-
+from datetime import timedelta
 User = get_user_model()
 
 class Cart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey('Course', on_delete=models.CASCADE)
-        
+      
     def __str__(self):
         return f'{self.user} have {self.course} in his cart'
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
+    
+    def __str__(self):
+        return self.name 
 
 class Course(models.Model):
     instructor = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -23,9 +26,16 @@ class Course(models.Model):
     thumbnail = models.ImageField(null=True, default='default.jpeg/')
     enrolled_counter = models.IntegerField(default=0)
     category = models.ForeignKey(Category, on_delete=models.RestrictedError)
-    duration_in_hour = models.SmallIntegerField(default=0)
-    rating = models.DecimalField(max_digits=1, decimal_places=1, default=0)
-    rating_added = models.IntegerField(default=0)
+    duration = models.DurationField(default=timedelta)
+    # Rate = rating_sum / rating_added_counter
+    rating_sum = models.IntegerField(default=0)
+    rating_added_counter = models.IntegerField(default=0)
+    
+    @property
+    def rate(self):
+        if self.rating_added_counter:
+            return f'{(self.rating_sum / self.rating_added_counter):.2f}'
+        return 0 
     
     def __str__(self):
         return f'{self.slug}'
@@ -35,13 +45,20 @@ class Video(models.Model):
     video = models.FileField(upload_to='videos/')
     name = models.CharField(max_length=200)
     counter = models.SmallIntegerField(verbose_name="number of the video in the course")
+    class Meta:
+        ordering = ['counter']
 
     def __str__(self):
-        return f'this video is for {self.course.slug} course'
+        return f'{self.name} is for {self.course.slug} course'
 
 class Test(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    title = models.CharField(max_length=50)
+    duration = models.DurationField(default=timedelta)
     
+    def __str__(self):
+        return f'this test belongs to {self.video.course.name} '
+
 class Question(models.Model):
     test = models.ForeignKey(Test, on_delete=models.CASCADE)
     question = models.CharField(max_length=200) 
@@ -99,5 +116,5 @@ def add_duration_signal(instance, *args, **kwargs):
 
 
 @receiver(post_delete, sender=Video)
-def add_duration_signal(instance, *args, **kwargs):
+def remove_duration_signal(instance, *args, **kwargs):
     pass
