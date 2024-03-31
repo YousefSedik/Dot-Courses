@@ -33,9 +33,9 @@
                     <h5 class="card-title">Course Details</h5>
                     <ul class="list-group">
                         <li class="list-group-item">Category: {{ course.category.name | title }}</li>
-                        <li class="list-group-item">Duration: {{ course.duration_in_hour }}</li>
+                        <li class="list-group-item">Duration: {{ course.duration }}</li>
                         <li class="list-group-item">Enrolled Students: {{ course.enrolled_counter }}</li>
-                        <li class="list-group-item">Rating: {{ course.rating }}</li>
+                        <li class="list-group-item">Rating: {{ course.rate }}</li>
                     </ul>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                         
                         {% if course.is_owned %}
                             {% for video in content %}
-                                <a href="" class="list-group-item list-group-item-action">{{ video.name }}</a>
+                                <a href="{% url 'core:ViewCourse' course_slug=course.slug video_no=video.counter %}" class="list-group-item list-group-item-action">{{ video.name }}</a>
                             {% endfor %}
                         {% else %}
                             {% for video in content %}

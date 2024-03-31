@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'debug_toolbar',
     'django_htmx',
+    'django_extensions',
+    'bootstrap4',
 
     # Internal Apps 
     
@@ -182,8 +184,8 @@ AUTHENTICATION_BACKENDS = [
 # EMAIL_USE_TLS = env('EMAIL_USE_TLS') == 'True'
 # EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 # EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-
-
+STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
 ACCOUNT_FORMS = {'signup': 'apps.users.forms.MyCustomSignupForm'}
 
 INTERNAL_IPS = [
