@@ -23,6 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.core.urls')),
     path('', include('apps.users.urls')),
+    path('', include('apps.payment.urls')),
+
     path('accounts/', include('allauth.urls')),
     path("__debug__/", include("debug_toolbar.urls")),
     

@@ -7,5 +7,6 @@ class MyCustomSignupForm(SignupForm):
 
         user = super(MyCustomSignupForm, self).save(request)
         user.first_name = self.first_name
+        user.username = None
         user.save()
         return user

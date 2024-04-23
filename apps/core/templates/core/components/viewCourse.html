@@ -15,7 +15,7 @@
           <a href="{% url 'core:about_course' course.slug %}" class="btn btn-primary mb-1 mt-1"> Open</a> 
           {% if course.id in in_cart %}
           
-          <button href="{% url 'core:Checkout' %}" class="btn btn-primary mb-1 mt-1"> Added To Cart.. Checkout </button>
+          <button href="{% url 'payment:Checkout' %}" class="btn btn-primary mb-1 mt-1"> Added To Cart.. Checkout </button>
           {% elif course.is_owned %}
               
           {% else %}
