@@ -20,7 +20,7 @@
                     <p class="card-text">Price: ${{ course.price }}</p>
                     {% if course.discount %}
                         <p class="card-text">Discount: {{ course.discount }}%</p>
-                        <p class="card-text">Discounted Price: $200</p>
+                        <p class="card-text">Discounted Price:{{ course.final_price }} </p>
                     {% endif %}
                     {% endif %}
                         
@@ -40,6 +40,11 @@
                 </div>
             </div>
         </div>
+        {% if not course.is_owned %}
+        <button class="btn btn-primary mb-1 mt-1" hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="delete">
+        Add to Cart
+      </button>
+        {% endif %}
         <div class="col-md-4 mt-5">
             <div class="card">
                 <div class="card-body">

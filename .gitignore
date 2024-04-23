@@ -3,7 +3,8 @@ venv
 __pycache__
 db.sqlite3
 .env
-media/videos
+media/videos/*
+media/thumbnail/*
 .idea
 scripts/
 erd.drawio

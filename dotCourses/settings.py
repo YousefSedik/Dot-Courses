@@ -45,19 +45,20 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # External Apps 
     
+    "allauth_ui",
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    "widget_tweaks",
     'debug_toolbar',
     'django_htmx',
     'django_extensions',
     'bootstrap4',
-
     # Internal Apps 
-    
+
     'apps.core',
     'apps.users',
-    
+    'apps.payment',
 ]
 
 MIDDLEWARE = [
@@ -191,5 +192,7 @@ ACCOUNT_FORMS = {'signup': 'apps.users.forms.MyCustomSignupForm'}
 INTERNAL_IPS = [
     '127.0.0.1'
 ]
+
+# AUTH_USER_MODEL = 'users.CustomUser'
 
 LOGIN_REDIRECT_URL = '/ClearCartCookies/'

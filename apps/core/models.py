@@ -8,7 +8,7 @@ class Cart(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE)
       
     def __str__(self):
-        return f'{self.user} have {self.course} in his cart'
+        return f'{self.student} have {self.course} in his cart'
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
@@ -23,11 +23,10 @@ class Course(models.Model):
     description = models.TextField(null=True, blank=True)
     price = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     discount = models.IntegerField(null=True, blank=True)
-    thumbnail = models.ImageField(null=True, default='default.jpeg/')
+    thumbnail = models.ImageField(null=True, default='default.jpeg/', upload_to='thumbnail/')
     enrolled_counter = models.IntegerField(default=0)
     category = models.ForeignKey(Category, on_delete=models.RestrictedError)
     duration = models.DurationField(default=timedelta)
-    # Rate = rating_sum / rating_added_counter
     rating_sum = models.IntegerField(default=0)
     rating_added_counter = models.IntegerField(default=0)
     
@@ -35,7 +34,13 @@ class Course(models.Model):
     def rate(self):
         if self.rating_added_counter:
             return f'{(self.rating_sum / self.rating_added_counter):.2f}'
-        return 0 
+        return 0
+    
+    @property
+    def final_price(self):
+        if self.discount is not None:
+            return f'{(self.price * (100-self.discount)/100):.2f}'
+        return 0
     
     def __str__(self):
         return f'{self.slug}'
@@ -51,16 +56,9 @@ class Video(models.Model):
     def __str__(self):
         return f'{self.name} is for {self.course.slug} course'
 
-class Test(models.Model):
-    video = models.ForeignKey(Video, on_delete=models.CASCADE)
-    title = models.CharField(max_length=50)
-    duration = models.DurationField(default=timedelta)
-    
-    def __str__(self):
-        return f'this test belongs to {self.video.course.name} '
 
 class Question(models.Model):
-    test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
     question = models.CharField(max_length=200) 
     right_answer = models.ForeignKey('Choice', on_delete=models.CASCADE, related_name='answer', null=True, blank=True)
 
@@ -70,15 +68,21 @@ class Question(models.Model):
 class Choice(models.Model):
     question =  models.ForeignKey(Question, on_delete=models.CASCADE)
     choice = models.CharField(max_length=200)
+    def __str__(self):
+        return self.choice
 
 class Certificate(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    def __str__(self):
+        return f"{self.student} have a certificate in this course {self.course}"
     
 class Purchase(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-
+    def __str__(self):
+        return f"{self.student} have bought this course {self.course}"
+    
 class Rate(models.Model):
     rate = models.CharField(max_length=1) # 1, 2, 3, 4, 5
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -87,7 +91,7 @@ class Rate(models.Model):
     def __str__(self):
         return f'{self.student} Rated {self.course} with {self.rate} out of 5'
 
-    
+
 # Signals 
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
@@ -105,14 +109,13 @@ def decrement_enrolled_counter(instance, *args, **kwargs):
 
 @receiver(post_save, sender=Rate)
 def add_rating(instance, *args, **kwargs):
-    # print(instance__course__id)
-    # current_rating = Course.objects.filter(id=instance__course__id)
     pass
 
 # Signal To Add the duration 
 @receiver(post_save, sender=Video)
 def add_duration_signal(instance, *args, **kwargs):
-    pass 
+    video_duration = instance.video
+    # print(dir(video_duration), type(video_duration))
 
 
 @receiver(post_delete, sender=Video)

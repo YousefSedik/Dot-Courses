@@ -4,37 +4,38 @@
 {% endblock title %} 
 {% block content %}
 <style>
-  .object {
-    width: 20%; /* Set the width of the object */
-    float: right; /* Float the object to the left */
-  }
-  .video {
-    margin: 0%;
-    padding: 0%;
-  }
+
 </style>
-    
-    <video class="video" src="{{ video.video.url }}" controls controlsList="nodownload"></video>
-    
-    <div class="object">
+<div class="container-fluid">
+  <div class="row">
+      <!-- Right section - 75% width -->
+      <div class="col-md-9 bg-light text-dark">
+        <video class="video" src="{{ video.video.url }}" controls controlsList="nodownload"></video>
+      </div>
+      <!-- Left section - 25% width -->
+      <div class="col-md-3">
+        
 
-    <ul class="list-group">
-
-        {% for video_obj in course_content %} 
-          <a href="{% url 'core:ViewCourse' course_slug=course.slug video_no=video_obj.counter %}"
-           class="list-group-item list-group-item-action 
-            {% if video.counter == video_obj.counter %}
-            active 
-            {% endif %}" aria-current="true">
-            {{ video_obj.name}}
-          </a>
-          {% for test in video_obj.test_set.all %}
-            <a href="{% url 'core:TestCourse' course_slug=course.slug video_id=video_obj.id %}" class="list-group-item list-group-item-action">
-              (Exam) {{ test.title }}
-            </a>
-        {% endfor %}
-          
-        {% endfor %}
-    </ul>
+          <ul class="list-group">
+              
+              {% for video_obj in course_content %} 
+                <a href="{% url 'core:ViewCourse' course_slug=course.slug video_no=video_obj.counter %}"
+                 class="list-group-item list-group-item-action 
+                  {% if video.counter == video_obj.counter %}
+                  active 
+                  {% endif %}" aria-current="true">
+                  {{ video_obj.name}}
+                </a>
+                
+                {% if video_obj.question_set.all %}
+                  <a href="{% url 'core:TestCourse' course_slug=course.slug video_id=video_obj.id %}" class="list-group-item list-group-item-action">
+                    (Exam) {{ forloop.counter }}
+                  </a>
+                {% endif %}
+                
+              {% endfor %}
+          </ul>
+      </div>
   </div>
+</div>
 {% endblock %}
