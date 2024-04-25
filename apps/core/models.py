@@ -16,7 +16,7 @@ class Category(models.Model):
     def __str__(self):
         return self.name 
 
-class Course(models.Model):
+class Course(models.Model): 
     instructor = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=120)
     slug = models.SlugField(max_length=100)
@@ -94,7 +94,7 @@ class Rate(models.Model):
 
 # Signals 
 from django.dispatch import receiver
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_save
 
 @receiver(post_save, sender=Purchase)
 def increment_enrolled_counter(instance, created, *args, **kwargs):
@@ -120,4 +120,10 @@ def add_duration_signal(instance, *args, **kwargs):
 
 @receiver(post_delete, sender=Video)
 def remove_duration_signal(instance, *args, **kwargs):
+    pass
+
+@receiver(pre_save, sender=Question)
+def add_right_answer(instance, *args, **kwargs):
+    # if the right_answer is getting updated then you should make 
+    # sure that the Choice.question.id == question.id 
     pass

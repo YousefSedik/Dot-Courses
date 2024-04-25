@@ -138,8 +138,9 @@ class ViewCourseView(LoginRequiredMixin, ListView):
     context_object_name = 'course_content'
     model = Video
     def dispatch(self, request, *args, **kwargs):
-        if not Purchase.objects.filter(student=request.user, course__slug=kwargs['course_slug']):
-            return redirect(reverse_lazy('core:about_course', args=[kwargs['course_slug']]))
+        if request.user.is_authenticated:
+            if not Purchase.objects.filter(student=request.user, course__slug=kwargs['course_slug']):
+                return redirect(reverse_lazy('core:about_course', args=[kwargs['course_slug']]))
         
         return super(ViewCourseView, self).dispatch(request, *args, **kwargs)
     def get_queryset(self):
@@ -182,13 +183,21 @@ class CorrectionView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         student = request.user
         video_id, course_id = kwargs['video_id'], kwargs['course_id']
-        data = request.POST 
+        data = request.POST # QuestionID -> OptionID
         question_ids = dict(data.lists())
         questions = Question.objects.filter(id__in=question_ids).select_related('right_answer')
-        
-        # tests = Test.objects.filter(video__id=video_id, video__course__slug=course_slug).first()
-        
-
+        context = {}
+        context["Data"] = {}
+        for question in questions:
+            if question.right_answer is None:
+                raise Exception("Right Answer Should Be Added to the question. ")
+            
+            context["Data"][question.id] = { "right_answer":question.right_answer.id,
+                                             "chosen_answer":(data[str(question.id)][0]) }
+            
+        # Return as a context question-id -> {real_answer, chosen_answer},
+        return render(request, 'core/ExamResult.html', context)
+    
 
 class AddRateView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
