@@ -105,9 +105,11 @@ class AboutCourseView(DetailView):
     
     def get_queryset(self):
         queryset = super(AboutCourseView, self).get_queryset().select_related('instructor')
+        
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
-                is_owned=Exists(Purchase.objects.filter(student=self.request.user, course=OuterRef('pk')))
+                is_owned=Exists(Purchase.objects.filter(student=self.request.user, course=OuterRef('pk'))), 
+                is_rated=Exists(Rate.objects.filter(student=self.request.user, course=OuterRef('pk')))
             )
         
         return queryset
@@ -115,6 +117,8 @@ class AboutCourseView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(AboutCourseView, self).get_context_data(**kwargs)
         context['content'] = Video.objects.filter(course=kwargs['object']).select_related()
+        if self.request.user.is_authenticated:
+            context['rate'] = Rate.objects.filter(course=kwargs['object'], student=self.request.user).first()
         return context
 
 class ClearCartCookiesView(View):
@@ -166,14 +170,13 @@ class TestCourseView(LoginRequiredMixin, ListView):
         
         return super(TestCourseView, self).dispatch(request, *args, **kwargs)
     
-    def get_queryset(self): #primary data
+    def get_queryset(self): # primary data
         course_slug, video_id = self.kwargs['course_slug'], self.kwargs['video_id']
         queryset = Question.objects.filter(video_id=video_id)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(TestCourseView, self).get_context_data(**kwargs)
-        # print(context)
         context['course_content'] = Video.objects.filter()
         context['course'] = get_object_or_404(Course, slug=self.kwargs['course_slug'])
         return context
@@ -199,11 +202,24 @@ class CorrectionView(LoginRequiredMixin, View):
         return render(request, 'core/ExamResult.html', context)
     
 
-class AddRateView(LoginRequiredMixin, View):
+class UpdateOrAddRateView(LoginRequiredMixin, View):
+    
+    
+    
     def post(self, request, *args, **kwargs):
+        
         student = request.user
         course_id = kwargs['course_id']
-        course_obj = get_object_or_404(Course, id=course_id)
-        Rate.objects.get_or_create(course=course_obj, student=student, \
-            rate=request.POST.get('rate'))
-        return HttpResponse('Rate Added Successfully')
+        rate_obj = None
+        rate = request.POST.get('rate')
+        rate_text = request.POST.get('rate_text')
+        if not kwargs['is_new']:
+            rate_obj = Rate.objects.filter(course_id=course_id, student=student).first()
+            rate_obj.rate = rate
+            rate_obj.review_text = rate_text
+            rate_obj.save()
+            return HttpResponse('<button class="btn btn-primary mb-1 mt-1">Rate Updated Successfully</button>')
+        else:
+            Rate.objects.create(course_id=course_id, student=student, rate=rate, review_text=rate_text)
+        
+            return HttpResponse('<button class="btn btn-primary mb-1 mt-1">Rate Added Successfully</button>')

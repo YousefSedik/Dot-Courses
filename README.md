@@ -35,6 +35,21 @@ Activate The Virtual Enviromnent
 ```sh
 \venv\Scripts\activate.bat
 ```
+Create The .env file in the root dir
+```
+touch .env 
+```
+Setup this variables in the .env file 
+```
+SECRET_KEY=''
+DEBUG=''
+EMAIL_HOST_USER=''
+EMAIL_HOST_PASSWORD=''
+EMAIL_HOST=""
+EMAIL_PORT=   
+EMAIL_USE_TLS=''
+```
+
 Install the dependencies and devDependencies
 ```sh
 pip install -r requiremints.txt

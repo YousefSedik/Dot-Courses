@@ -85,9 +85,9 @@ class Purchase(models.Model):
     
 class Rate(models.Model):
     rate = models.CharField(max_length=1) # 1, 2, 3, 4, 5
+    review_text = models.TextField(null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
-    
     def __str__(self):
         return f'{self.student} Rated {self.course} with {self.rate} out of 5'
 
@@ -107,10 +107,25 @@ def decrement_enrolled_counter(instance, *args, **kwargs):
     instance.course.enrolled_counter -= 1
     instance.course.save()
 
-@receiver(post_save, sender=Rate)
-def add_rating(instance, *args, **kwargs):
-    pass
-
+# @receiver(post_save, sender=Rate)
+# def add_rating(instance, *args, **kwargs):
+#     # check if the rate is new or it's just getting updated
+#     # print(args, kwargs) 
+    
+@receiver(pre_save, sender=Rate)
+def add_or_update_rating(sender, instance, *args, **kwargs):
+    
+    course_obj = instance.course
+    if not instance.pk: # new 
+        course_obj.rating_sum += int(instance.rate)
+        course_obj.rating_added_counter += 1
+    else:
+        original_instance = sender.objects.get(pk=instance.pk)
+        course_obj.rating_sum -= int(original_instance.rate)
+        course_obj.rating_sum += int(instance.rate)
+        
+    course_obj.save()   
+        
 # Signal To Add the duration 
 @receiver(post_save, sender=Video)
 def add_duration_signal(instance, *args, **kwargs):

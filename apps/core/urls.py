@@ -5,7 +5,7 @@ app_name = 'core'
 AJAX_urlpatterns = [
     path('AddToCart/<int:course_id>', views.AddToCartView.as_view(), name='AddToCart'),
     path('DeleteFromCart/<int:course_id>', views.DeleteFromCartView.as_view(), name='DeleteFromCart'),
-    path('AddRate/<int:course_id>/', views.AddRateView.as_view(), name='AddRate'),
+    path('UpdateOrAddRate/<int:course_id>/<int:is_new>', views.UpdateOrAddRateView.as_view(), name='AddRate'),
     path('Correction/<int:course_id>/<int:video_id>', views.CorrectionView.as_view(), name='Correction'),
     
 ]

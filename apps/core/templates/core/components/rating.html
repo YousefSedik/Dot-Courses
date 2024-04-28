@@ -1,0 +1,30 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/rating_stars_style.css'%}">
+<form method="post">
+    {% csrf_token %}
+    <div class="rate-comp">
+        <div class="rate" style="display: inline;">
+            <input type="radio" id="star5" name="rate" value="5" {% if rate.rate == '5' %} checked {% endif %} />
+            <label for="star5" title="text">5 stars</label>
+            <input type="radio" id="star4" name="rate" value="4" {% if rate.rate == '4' %} checked {% endif %}  />
+            <label for="star4" title="text">4 stars</label>
+            <input type="radio" id="star3" name="rate" value="3" {% if rate.rate == '3' %} checked {% endif %}/>
+            <label for="star3" title="text">3 stars</label>
+            <input type="radio" id="star2" name="rate" value="2" {% if rate.rate == '2' %} checked {% endif %}/>
+            <label for="star2" title="text">2 stars</label>
+            <input type="radio" id="star1" name="rate" value="1" {% if rate.rate == '1' %} checked {% endif %}/>
+            <label for="star1" title="text">1 star</label>
+        </div>
+        <textarea name="rate_text" id="" cols="40" rows="2" class="w-100"
+        placeholder="What do you think of the course?">{{ rate.review_text }}</textarea>
+        
+        {% if rate %}
+        <button hx-swap="outerHTML" hx-target="#add-rate-btn" id="add-rate-btn" hx-post="{% url 'core:AddRate' course_id=course.id is_new=0 %}" type="submit" class="btn btn-primary mb-1 mt-1">Update</button>
+
+        {% else %}
+        <button hx-swap="outerHTML" hx-target="#add-rate-btn" id="add-rate-btn" hx-post="{% url 'core:AddRate' course_id=course.id is_new=1 %}" type="submit" class="btn btn-primary mb-1 mt-1">Submit</button>
+        {% endif %}
+            
+        
+    </div>
+</form>

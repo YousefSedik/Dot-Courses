@@ -2,28 +2,29 @@
 
 
 {% block title %}
-    {{ course.name }}
+{{ course.name }}
 {% endblock title %}
-    
+
 {% block content %}
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-8">
             <div class="card">
-                <img src="{{ course.thumbnail.url }}" class="card-img-top" style="width: 100%; height: 200px;" alt="{{ course.name }}">
+                <img src="{{ course.thumbnail.url }}" class="card-img-top" style="width: 100%; height: 300px;"
+                    alt="{{ course.name }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ course.name }}</h5>
                     <p class="card-text">{{ course.description }}</p>
                     <p class="card-text">Instructor: {{ course.instructor.first_name }}</p>
-                    
+
                     {% if course.price %}
                     <p class="card-text">Price: ${{ course.price }}</p>
                     {% if course.discount %}
-                        <p class="card-text">Discount: {{ course.discount }}%</p>
-                        <p class="card-text">Discounted Price:{{ course.final_price }} </p>
+                    <p class="card-text">Discount: {{ course.discount }}%</p>
+                    <p class="card-text">Discounted Price:{{ course.final_price }} </p>
                     {% endif %}
                     {% endif %}
-                        
+
                 </div>
             </div>
         </div>
@@ -35,38 +36,56 @@
                         <li class="list-group-item">Category: {{ course.category.name | title }}</li>
                         <li class="list-group-item">Duration: {{ course.duration }}</li>
                         <li class="list-group-item">Enrolled Students: {{ course.enrolled_counter }}</li>
-                        <li class="list-group-item">Rating: {{ course.rate }}</li>
+                        <li class="list-group-item"> Rate: <br>
+                            {{ course.rate }} / 5
+                        </li>
+
+                        {% if course.is_owned %}
+                        <li class="list-group-item"> My Rate:
+                            {% include 'core/components/rating.html' %}
+                        </li>
+
+                        {% endif %}
+
                     </ul>
+                    <hr>
                 </div>
             </div>
         </div>
-        {% if not course.is_owned %}
-        <button class="btn btn-primary mb-1 mt-1" hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="delete">
-        Add to Cart
-      </button>
-        {% endif %}
-        <div class="col-md-4 mt-5">
+        <div class="row">
+            <div class="col">
+                {% if not course.is_owned and course.id not in in_cart %}
+                <button class="btn btn-primary mb-1 mt-1" hx-post="{% url 'core:AddToCart' course.id %}"
+                    hx-swap="delete">
+                    Add to Cart
+                </button>
+                {% endif %}
+            </div>
+            
+        </div>
+        <div class="col-md-4 mt-5 mb-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Course Content</h5>
                     <ul class="list-group">
-                        
-                        {% if course.is_owned %}
-                            {% for video in content %}
-                                <a href="{% url 'core:ViewCourse' course_slug=course.slug video_no=video.counter %}" class="list-group-item list-group-item-action">{{ video.name }}</a>
-                            {% endfor %}
-                        {% else %}
-                            {% for video in content %}
-                                <li class="list-group-item">{{ video.name }}</li>                            
-                            {% endfor %}
-                        {% endif %}
-                            
 
+                        {% if course.is_owned %}
+                        {% for video in content %}
+                        <a href="{% url 'core:ViewCourse' course_slug=course.slug video_no=video.counter %}"
+                            class="list-group-item list-group-item-action">{{ video.name }}</a>
+                        {% endfor %}
+                        {% else %}
+                        {% for video in content %}
+                        <li class="list-group-item">{{ video.name }}</li>
+                        {% endfor %}
+                        {% endif %}
                     </ul>
                 </div>
             </div>
         </div>
+
+
+
     </div>
 </div>
 {% endblock %}
-    
