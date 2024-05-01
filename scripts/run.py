@@ -1,9 +1,14 @@
 from apps.core import models
-
+import cv2
+from apps.core.utils import main
+import datetime
 def run():
-    # create rate obj 
-    db_course = models.Course.objects.filter(name='Database').first()
-    student  = models.get_user_model().objects.filter(email="maxxd1919@gmail.com").first()
-    inst = models.Rate.objects.all().first()
-    inst.rate='1'
-    inst.save()
+    # make the durations 0 for all courses 
+    for course in models.Course.objects.all():
+        course.duration = datetime.timedelta()
+        
+        videos = course.video_set.all() 
+        for video in videos:
+            course.duration += main.get_dur(video.video.path)
+    
+        course.save()

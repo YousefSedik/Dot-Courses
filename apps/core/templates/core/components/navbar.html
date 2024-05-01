@@ -22,7 +22,7 @@
           {% if user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href=""> Welcome 
-              {% if  user.first_name %} {{ user.first_name }} {% else %} Student {% endif %}
+              {% if  user.full_name %} {{ user.full_name }} {% else %} Student {% endif %}
               </a>
             </li>
             <li class="nav-item">

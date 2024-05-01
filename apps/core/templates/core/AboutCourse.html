@@ -15,7 +15,7 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ course.name }}</h5>
                     <p class="card-text">{{ course.description }}</p>
-                    <p class="card-text">Instructor: {{ course.instructor.first_name }}</p>
+                    <p class="card-text">Instructor: {{ course.instructor.full_name }}</p>
 
                     {% if course.price %}
                     <p class="card-text">Price: ${{ course.price }}</p>

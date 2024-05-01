@@ -107,11 +107,6 @@ def decrement_enrolled_counter(instance, *args, **kwargs):
     instance.course.enrolled_counter -= 1
     instance.course.save()
 
-# @receiver(post_save, sender=Rate)
-# def add_rating(instance, *args, **kwargs):
-#     # check if the rate is new or it's just getting updated
-#     # print(args, kwargs) 
-    
 @receiver(pre_save, sender=Rate)
 def add_or_update_rating(sender, instance, *args, **kwargs):
     
@@ -125,20 +120,35 @@ def add_or_update_rating(sender, instance, *args, **kwargs):
         course_obj.rating_sum += int(instance.rate)
         
     course_obj.save()   
-        
+
+from .utils import main
 # Signal To Add the duration 
 @receiver(post_save, sender=Video)
 def add_duration_signal(instance, *args, **kwargs):
-    video_duration = instance.video
-    # print(dir(video_duration), type(video_duration))
+    video_path = instance.video.path 
+    video_time = main.get_duration(video_path)
+    course_obj = instance.course 
+    course_obj.duration += video_time
+    course_obj.save()
 
 
 @receiver(post_delete, sender=Video)
 def remove_duration_signal(instance, *args, **kwargs):
-    pass
+    video_path = instance.video.path 
+    video_time = main.get_duration(video_path)
+    course_obj = instance.course 
+    course_obj.duration -= video_time
+    course_obj.save()
 
 @receiver(pre_save, sender=Question)
-def add_right_answer(instance, *args, **kwargs):
+def adding_right_answer(instance, *args, **kwargs):
     # if the right_answer is getting updated then you should make 
     # sure that the Choice.question.id == question.id 
     pass
+
+@receiver(pre_save, sender=Purchase)
+def delete_obj_from_cart(instance, *args, **kwargs):
+    course_obj = instance.course 
+    student = instance.student
+    Cart.objects.filter(course=course_obj, student=student).delete()
+    
