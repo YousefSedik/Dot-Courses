@@ -18,7 +18,7 @@ main_urlpatterns = [
     path('ClearCartCookies/', views.ClearCartCookiesView.as_view(), name='ClearCartCookies'),
     path('course/<slug:course_slug>/<int:video_no>/watch', views.ViewCourseView.as_view(), name='ViewCourse'),
     path('course/<slug:course_slug>/<int:video_id>/exam', views.TestCourseView.as_view(), name='TestCourse'),
-    # path('l', views.lo),
+    path('MyCourses', views.MyCoursesView.as_view(), name='MyCourses'),
 ]
 
 urlpatterns = main_urlpatterns + AJAX_urlpatterns

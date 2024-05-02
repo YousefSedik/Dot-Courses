@@ -16,13 +16,13 @@
             <a class="nav-link" href="{% url 'core:Cart' %}" > Cart (<span id="counter">{{cart_counter}}</span>)  </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">My Courses </a>
+            <a class="nav-link" href="{% url 'core:MyCourses' %}">My Courses </a>
           </li>
           
           {% if user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href=""> Welcome 
-              {% if  user.full_name %} {{ user.full_name }} {% else %} Student {% endif %}
+              {% if user.full_name %} {{ user.full_name }} {% else %} Student {% endif %}
               </a>
             </li>
             <li class="nav-item">

@@ -223,3 +223,16 @@ class UpdateOrAddRateView(LoginRequiredMixin, View):
             Rate.objects.create(course_id=course_id, student=student, rate=rate, review_text=rate_text)
         
             return HttpResponse('<button class="btn btn-primary mb-1 mt-1">Rate Added Successfully</button>')
+        
+        
+
+class MyCoursesView(LoginRequiredMixin, ListView):
+    template_name = 'core/MyCourses.html'
+    model = Purchase 
+    context_object_name = 'courses'
+    def get_queryset(self):
+        queryset = super(MyCoursesView, self).get_queryset()
+        queryset = queryset.filter(student=self.request.user).select_related('course')
+        return queryset
+    
+    
