@@ -1,20 +1,30 @@
 {% extends 'core/main.html' %}
 
+{% block title %}
+    Exam 
+{% endblock title %}
+    
 {% block content %}
 <div class="container">
+    
+    
     <div class="row">
-        <div class="col-md-8 offset-md-2" id="Test-Div">
+        <div class="col-md-8 offset-md-2 mt-2" id="Test-Div">
+            {% if passed %}
+                {% include 'core/components/already_passed.html' %}
+            {% endif %}
             <h2 class="mt-4 mb-4">Multiple Choice Questions</h2>
                 
-            <form>
+            <form id="Questions-Form">
                 {% for question in questions %}
                     <div class="mcq-question">
                         <h5 > {{ forloop.counter }}: {{ question.question }}</h5>
                         {% for option in question.choice_set.all %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="{{question.id}}" 
+                            <div class="form-check -{{option.id}}" id="form-check -{{option.id}}" > 
+                                <input class="form-check-input" 
+                                type="radio" name="{{question.id}}" 
                                 id="option{{ option.id }}" value="{{ option.id }}">
-                                <label class="form-check-label" for="option{{ option.id }}">{{ option.choice }}</label>
+                                <label class="form-check-label" for="option{{ option.id }}" >{{ option.choice }}</label>
                             </div>
                         {% endfor %}
                     </div>
@@ -26,10 +36,11 @@
                     
                     {% endfor %}
                     <button type="submit" class="btn btn-primary mt-4"
-                    hx-post="{% url 'core:Correction' course_id=course.id video_id=1 %}" hx-target="#Test-Div" hx-swap="outerHTML">Submit</button>
+                    hx-swap="afterend"  hx-target="#Questions-Form" hx-post="{% url 'core:Correction' course_id=course.id video_id=1 %}" hx-target="#Test-Div" hx-swap="outerHTML">Submit</button>
                 </form>
                 
         </div>
     </div>
 </div>
+
 {% endblock %}

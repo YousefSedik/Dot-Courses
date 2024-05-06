@@ -1,13 +1,13 @@
 from django.urls import path
 from . import views
+from . import AJAX_views
 app_name = 'core'
 
 AJAX_urlpatterns = [
-    path('AddToCart/<int:course_id>', views.AddToCartView.as_view(), name='AddToCart'),
-    path('DeleteFromCart/<int:course_id>', views.DeleteFromCartView.as_view(), name='DeleteFromCart'),
-    path('AddRate/<int:course_id>/', views.AddRateView.as_view(), name='AddRate'),
-    path('Correction/<int:course_id>/<int:video_id>', views.CorrectionView.as_view(), name='Correction'),
-    
+    path('add-to-cart/<int:course_id>', AJAX_views.AddToCartView.as_view(), name='AddToCart'),
+    path('delete-from-cart/<int:course_id>', AJAX_views.DeleteFromCartView.as_view(), name='DeleteFromCart'),
+    path('update-or-add-rate/<int:course_id>/<int:is_new>', AJAX_views.UpdateOrAddRateView.as_view(), name='AddRate'),
+    path('correction/<int:course_id>/<int:video_id>', AJAX_views.CorrectionView.as_view(), name='Correction'),
 ]
 
 main_urlpatterns = [
@@ -15,10 +15,13 @@ main_urlpatterns = [
     path('', views.HomeView.as_view(), name='home'),
     path('cart/', views.CartView.as_view(), name='Cart'),
     path('course/<slug:course_slug>', views.AboutCourseView.as_view(), name='about_course'),
-    path('ClearCartCookies/', views.ClearCartCookiesView.as_view(), name='ClearCartCookies'),
+    path('clear-cart-cookies/', views.ClearCartCookiesView.as_view(), name='ClearCartCookies'),
     path('course/<slug:course_slug>/<int:video_no>/watch', views.ViewCourseView.as_view(), name='ViewCourse'),
     path('course/<slug:course_slug>/<int:video_id>/exam', views.TestCourseView.as_view(), name='TestCourse'),
-    # path('l', views.lo),
+    path('my-courses', views.MyCoursesView.as_view(), name='MyCourses'),
+    path('search', views.SearchView.as_view(), name='search'),
+    path('certificate/<str:key>', views.CreateCertificateView.as_view(), name='certificate'),
+    
 ]
 
 urlpatterns = main_urlpatterns + AJAX_urlpatterns

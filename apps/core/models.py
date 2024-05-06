@@ -16,7 +16,7 @@ class Category(models.Model):
     def __str__(self):
         return self.name 
 
-class Course(models.Model):
+class Course(models.Model): 
     instructor = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=120)
     slug = models.SlugField(max_length=100)
@@ -52,6 +52,7 @@ class Video(models.Model):
     counter = models.SmallIntegerField(verbose_name="number of the video in the course")
     class Meta:
         ordering = ['counter']
+        unique_together = [['course', 'counter']]
 
     def __str__(self):
         return f'{self.name} is for {self.course.slug} course'
@@ -70,31 +71,53 @@ class Choice(models.Model):
     choice = models.CharField(max_length=200)
     def __str__(self):
         return self.choice
+    
+
+import secrets
+import string
+alphabet = string.ascii_letters + string.digits
+key_length = 10 
 
 class Certificate(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    key = models.CharField(max_length=10, primary_key=True)
     def __str__(self):
         return f"{self.student} have a certificate in this course {self.course}"
     
+    def generate_key(self):
+        random_key = ''.join(secrets.choice(alphabet) for _ in range(key_length))
+        self.key = random_key
+
 class Purchase(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = [['student', 'course']]
     def __str__(self):
         return f"{self.student} have bought this course {self.course}"
     
 class Rate(models.Model):
     rate = models.CharField(max_length=1) # 1, 2, 3, 4, 5
+    review_text = models.TextField(null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = [['student', 'course']]
     
     def __str__(self):
         return f'{self.student} Rated {self.course} with {self.rate} out of 5'
 
-
+class Grade(models.Model):
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    passed = models.BooleanField()
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    def __str__(self):
+        return f"{self.student.full_name}, passed: {self.passed}, on {self.video}"
+    
 # Signals 
 from django.dispatch import receiver
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_save
 
 @receiver(post_save, sender=Purchase)
 def increment_enrolled_counter(instance, created, *args, **kwargs):
@@ -107,17 +130,50 @@ def decrement_enrolled_counter(instance, *args, **kwargs):
     instance.course.enrolled_counter -= 1
     instance.course.save()
 
-@receiver(post_save, sender=Rate)
-def add_rating(instance, *args, **kwargs):
-    pass
+@receiver(pre_save, sender=Rate)
+def add_or_update_rating(sender, instance, *args, **kwargs):
+    
+    course_obj = instance.course
+    if not instance.pk: # new 
+        course_obj.rating_sum += int(instance.rate)
+        course_obj.rating_added_counter += 1
+    else:
+        original_instance = sender.objects.get(pk=instance.pk)
+        course_obj.rating_sum -= int(original_instance.rate)
+        course_obj.rating_sum += int(instance.rate)
+        
+    course_obj.save()   
 
+from .utils import main
 # Signal To Add the duration 
 @receiver(post_save, sender=Video)
 def add_duration_signal(instance, *args, **kwargs):
-    video_duration = instance.video
-    # print(dir(video_duration), type(video_duration))
+    video_path = instance.video.path 
+    video_time = main.get_duration(video_path)
+    course_obj = instance.course 
+    course_obj.duration += video_time
+    course_obj.save()
 
 
 @receiver(post_delete, sender=Video)
 def remove_duration_signal(instance, *args, **kwargs):
-    pass
+    video_path = instance.video.path 
+    video_time = main.get_duration(video_path)
+    course_obj = instance.course 
+    course_obj.duration -= video_time
+    course_obj.save()
+
+@receiver(pre_save, sender=Question)
+def adding_right_answer(instance, *args, **kwargs):
+    # if the right_answer is getting updated then you should make 
+    # sure that the Choice.question.id == question.id 
+    # if instance.question.id != question.id :
+    #     raise Exception('The Chosen Answer Dosen/''t belong to this question!')
+    pass 
+
+@receiver(pre_save, sender=Purchase)
+def delete_obj_from_cart(instance, *args, **kwargs):
+    course_obj = instance.course 
+    student = instance.student
+    Cart.objects.filter(course=course_obj, student=student).delete()
+    
