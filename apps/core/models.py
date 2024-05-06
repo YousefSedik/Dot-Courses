@@ -52,6 +52,7 @@ class Video(models.Model):
     counter = models.SmallIntegerField(verbose_name="number of the video in the course")
     class Meta:
         ordering = ['counter']
+        unique_together = [['course', 'counter']]
 
     def __str__(self):
         return f'{self.name} is for {self.course.slug} course'
@@ -70,16 +71,29 @@ class Choice(models.Model):
     choice = models.CharField(max_length=200)
     def __str__(self):
         return self.choice
+    
+
+import secrets
+import string
+alphabet = string.ascii_letters + string.digits
+key_length = 10 
 
 class Certificate(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    key = models.CharField(max_length=10, primary_key=True)
     def __str__(self):
         return f"{self.student} have a certificate in this course {self.course}"
     
+    def generate_key(self):
+        random_key = ''.join(secrets.choice(alphabet) for _ in range(key_length))
+        self.key = random_key
+
 class Purchase(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = [['student', 'course']]
     def __str__(self):
         return f"{self.student} have bought this course {self.course}"
     
@@ -88,10 +102,19 @@ class Rate(models.Model):
     review_text = models.TextField(null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
+    class Meta:
+        unique_together = [['student', 'course']]
+    
     def __str__(self):
         return f'{self.student} Rated {self.course} with {self.rate} out of 5'
 
-
+class Grade(models.Model):
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    passed = models.BooleanField()
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    def __str__(self):
+        return f"{self.student.full_name}, passed: {self.passed}, on {self.video}"
+    
 # Signals 
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete, pre_save
@@ -144,7 +167,9 @@ def remove_duration_signal(instance, *args, **kwargs):
 def adding_right_answer(instance, *args, **kwargs):
     # if the right_answer is getting updated then you should make 
     # sure that the Choice.question.id == question.id 
-    pass
+    # if instance.question.id != question.id :
+    #     raise Exception('The Chosen Answer Dosen/''t belong to this question!')
+    pass 
 
 @receiver(pre_save, sender=Purchase)
 def delete_obj_from_cart(instance, *args, **kwargs):

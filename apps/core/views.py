@@ -22,25 +22,6 @@ class HomeView(ListView):
             )
         return queryset
     
-class AddToCartView(View):
-    http_method_names = ['post']
-    
-    def post(self, request, *args, **kwargs):
-        response = HttpResponse(
-            '<button href="{% url "payment:Checkout" %}" class="btn btn-primary"> Added To Cart.. Checkout </button> '
-            )
-        if not request.user.is_authenticated:
-            cart_ids = request.COOKIES.get('cart', '')
-            list_of_cart_ids = list(map(int, cart_ids.split()))
-            if kwargs["course_id"] not in list_of_cart_ids:
-                cart_ids += f'{kwargs["course_id"]} '
-                response.set_cookie('cart', cart_ids)
-            
-        else:
-            course = get_object_or_404(Course, pk=kwargs['course_id'])
-            Cart.objects.get_or_create(course=course, student=request.user)
-            
-        return response
 
 from django.db.models import Sum
 class CartView(ListView):
@@ -72,30 +53,6 @@ class CartView(ListView):
         context['total_price'] = total_price 
         return context
     
-    
-class DeleteFromCartView(View):
-    def delete(self, request, *args, **kwargs):
-        if request.user.is_authenticated:# Remove From DB 
-            instance = Cart.objects.get(course__id=kwargs['course_id'])
-            if instance.student == request.user:
-                instance.delete()
-        
-        elif request.COOKIES.get('cart'): # Remove From Cookies 
-            
-            cookies = request.COOKIES['cart'].split()
-            cookies = list(map(int, cookies))
-            new_cookies = ''
-            for course_id in cookies:
-                if course_id == kwargs['course_id']:
-                    continue
-                new_cookies += str(course_id) + ' '
-            response = HttpResponse('')
-            response.set_cookie('cart', new_cookies)
-            return response
-        
-        return HttpResponse('')
-    
-
 class AboutCourseView(DetailView):
     model = Course
     template_name = 'core/AboutCourse.html'
@@ -109,7 +66,8 @@ class AboutCourseView(DetailView):
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
                 is_owned=Exists(Purchase.objects.filter(student=self.request.user, course=OuterRef('pk'))), 
-                is_rated=Exists(Rate.objects.filter(student=self.request.user, course=OuterRef('pk')))
+                is_rated=Exists(Rate.objects.filter(student=self.request.user, course=OuterRef('pk'))),
+                
             )
         
         return queryset
@@ -117,6 +75,8 @@ class AboutCourseView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(AboutCourseView, self).get_context_data(**kwargs)
         context['content'] = Video.objects.filter(course=kwargs['object']).select_related()
+        context['rates'] = Rate.objects.filter(course__slug=self.kwargs['course_slug']).select_related('student')
+
         if self.request.user.is_authenticated:
             context['rate'] = Rate.objects.filter(course=kwargs['object'], student=self.request.user).first()
         return context
@@ -155,9 +115,10 @@ class ViewCourseView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(ViewCourseView, self).get_context_data(**kwargs)
         course_slug, video_no = self.kwargs['course_slug'], self.kwargs['video_no']
-        context['video'] = Video.objects.filter(course__slug=course_slug, counter=video_no)[0]
+        context['video'] = Video.objects.filter(course__slug=course_slug, counter=video_no).first()
         video_duration = context['video'].video
-        context['course'] = Course.objects.filter(slug=course_slug)[0]
+        context['course'] = Course.objects.filter(slug=course_slug).first()
+        
         return context
 
 class TestCourseView(LoginRequiredMixin, ListView):
@@ -179,52 +140,26 @@ class TestCourseView(LoginRequiredMixin, ListView):
         context = super(TestCourseView, self).get_context_data(**kwargs)
         context['course_content'] = Video.objects.filter()
         context['course'] = get_object_or_404(Course, slug=self.kwargs['course_slug'])
+        grades = Grade.objects.filter(video__id=self.kwargs['video_id'], student=self.request.user)
+        context['grade'] = grades.last()
+        context['passed'] = grades.filter(passed=True).exists()
+        # print
+        # Check if there is next video: Exam->video->counter + 1 available?
+        if context['passed']:
+            next_video = Video.objects.filter(course__slug=self.kwargs['course_slug'],
+                                              counter=self.kwargs['video_id']+1)
+            # (next_video.exists())
+            if next_video.exists():
+                context['next_video'] = reverse_lazy('core:ViewCourse', kwargs={
+                    "course_slug":context['course'].slug,
+                    "video_no":self.kwargs['video_id']+1
+                })
+                print("AAAAAAAAAAAAA")
+            else:
+                # Get Certificate
+                pass 
+        print(context['passed'])
         return context
-
-
-class CorrectionView(LoginRequiredMixin, View):
-    def post(self, request, *args, **kwargs):
-        student = request.user
-        video_id, course_id = kwargs['video_id'], kwargs['course_id']
-        data = request.POST # QuestionID -> OptionID
-        question_ids = dict(data.lists())
-        questions = Question.objects.filter(id__in=question_ids).select_related('right_answer')
-        context = {}
-        context["Data"] = {}
-        for question in questions:
-            if question.right_answer is None:
-                raise Exception("Right Answer Should Be Added to the question. ")
-            
-            context["Data"][question.id] = { "right_answer":question.right_answer.id,
-                                             "chosen_answer":(data[str(question.id)][0]) }
-            
-        # Return as a context question-id -> {real_answer, chosen_answer},
-        return render(request, 'core/ExamResult.html', context)
-    
-
-class UpdateOrAddRateView(LoginRequiredMixin, View):
-    
-    
-    
-    def post(self, request, *args, **kwargs):
-        
-        student = request.user
-        course_id = kwargs['course_id']
-        rate_obj = None
-        rate = request.POST.get('rate')
-        rate_text = request.POST.get('rate_text')
-        if not kwargs['is_new']:
-            rate_obj = Rate.objects.filter(course_id=course_id, student=student).first()
-            rate_obj.rate = rate
-            rate_obj.review_text = rate_text
-            rate_obj.save()
-            return HttpResponse('<button class="btn btn-primary mb-1 mt-1">Rate Updated Successfully</button>')
-        else:
-            Rate.objects.create(course_id=course_id, student=student, rate=rate, review_text=rate_text)
-        
-            return HttpResponse('<button class="btn btn-primary mb-1 mt-1">Rate Added Successfully</button>')
-        
-        
 
 class MyCoursesView(LoginRequiredMixin, ListView):
     template_name = 'core/MyCourses.html'
@@ -235,4 +170,29 @@ class MyCoursesView(LoginRequiredMixin, ListView):
         queryset = queryset.filter(student=self.request.user).select_related('course')
         return queryset
     
+class SearchView(View):
+    def get(self, request, *args, **kwargs):
+        q = request.GET.get('q')
+        context = {}
+        context['courses'] = Course.objects.filter(Q(description__contains=q) | \
+                                                   Q(name__contains=q) | \
+                                                   Q(instructor__full_name__contains=q))
+        if self.request.user.is_authenticated:
+            context['courses'] = context['courses'].annotate(
+                is_owned=Exists(Purchase.objects.filter(student=self.request.user, course=OuterRef('pk')))
+            )
+        return render(request, 'core/components/viewCourse.html', context)
     
+class CreateCertificateView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        student = request.user 
+        course_slug = request.POST.get('course_slug')
+        grades = Grade.objects.filter(course__slug=course_slug, student=student, passed=True)
+        # grades = grades.distinct()
+        # if len(grades) == :
+        
+        return redirect(reverse_lazy('core:'))
+    def get(self, request, *args, **kwargs):
+        # Show Certificate
+        
+        pass 

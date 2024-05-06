@@ -1,9 +1,18 @@
 {% extends 'core/main.html' %}
+
+{% block title %}
+    Exam 
+{% endblock title %}
+    
 {% block content %}
 <div class="container">
     
+    
     <div class="row">
-        <div class="col-md-8 offset-md-2" id="Test-Div">
+        <div class="col-md-8 offset-md-2 mt-2" id="Test-Div">
+            {% if passed %}
+                {% include 'core/components/already_passed.html' %}
+            {% endif %}
             <h2 class="mt-4 mb-4">Multiple Choice Questions</h2>
                 
             <form id="Questions-Form">

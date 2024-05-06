@@ -51,7 +51,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=200)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
-
+    @property
+    def first_name(self):
+        if self.full_name:
+            return self.full_name.split()[0]
+        return ""
     objects = CustomUserManager()
 
     def __str__(self):
