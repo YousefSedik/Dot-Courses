@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.urls import reverse_lazy
 from .models import *
+from .utils import main
 from django.db.models import Exists, OuterRef, Subquery, Count
 # Create your views here.
 
@@ -97,7 +98,7 @@ class ClearCartCookiesView(View):
         
         return response
 
-class ViewCourseView(LoginRequiredMixin, ListView):
+class VideoView(LoginRequiredMixin, ListView):
     template_name = 'core/ViewCourse.html'
     context_object_name = 'course_content'
     model = Video
@@ -106,19 +107,24 @@ class ViewCourseView(LoginRequiredMixin, ListView):
             if not Purchase.objects.filter(student=request.user, course__slug=kwargs['course_slug']):
                 return redirect(reverse_lazy('core:about_course', args=[kwargs['course_slug']]))
         
-        return super(ViewCourseView, self).dispatch(request, *args, **kwargs)
+        return super(VideoView, self).dispatch(request, *args, **kwargs)
     def get_queryset(self):
         course_slug = self.kwargs['course_slug']
-        queryset = super(ViewCourseView, self).get_queryset().filter(course__slug=course_slug)
+        queryset = super(VideoView, self).get_queryset().filter(course__slug=course_slug)
         return queryset
     
     def get_context_data(self, **kwargs):
-        context = super(ViewCourseView, self).get_context_data(**kwargs)
+        context = super(VideoView, self).get_context_data(**kwargs)
         course_slug, video_no = self.kwargs['course_slug'], self.kwargs['video_no']
         context['video'] = Video.objects.filter(course__slug=course_slug, counter=video_no).first()
         video_duration = context['video'].video
-        context['course'] = Course.objects.filter(slug=course_slug).first()
-        
+        context['course'] = Course.objects.get(slug=course_slug)
+        has_certificate = Certificate.objects.filter(student=self.request.user, course=context['course']).first()
+        if has_certificate:
+            context['got_certificate'] = has_certificate
+        else:
+            context['is_eligible_to_get_certificate'] = context['course'].\
+                is_eligible_to_get_certificate(self.request.user)
         return context
 
 class TestCourseView(LoginRequiredMixin, ListView):
@@ -138,27 +144,22 @@ class TestCourseView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(TestCourseView, self).get_context_data(**kwargs)
-        context['course_content'] = Video.objects.filter()
         context['course'] = get_object_or_404(Course, slug=self.kwargs['course_slug'])
         grades = Grade.objects.filter(video__id=self.kwargs['video_id'], student=self.request.user)
         context['grade'] = grades.last()
         context['passed'] = grades.filter(passed=True).exists()
-        # print
         # Check if there is next video: Exam->video->counter + 1 available?
-        if context['passed']:
-            next_video = Video.objects.filter(course__slug=self.kwargs['course_slug'],
-                                              counter=self.kwargs['video_id']+1)
-            # (next_video.exists())
-            if next_video.exists():
-                context['next_video'] = reverse_lazy('core:ViewCourse', kwargs={
-                    "course_slug":context['course'].slug,
-                    "video_no":self.kwargs['video_id']+1
-                })
-                print("AAAAAAAAAAAAA")
-            else:
-                # Get Certificate
-                pass 
-        print(context['passed'])
+        video_counter = Video.objects.get(pk=self.kwargs['video_id']).counter + 1
+        
+        next_video = Video.objects.filter(course__slug=self.kwargs['course_slug'],
+                                            counter=video_counter)
+        
+        if next_video.exists():
+            context['next_video'] = reverse_lazy('core:ViewCourse', kwargs={
+                "course_slug":context['course'].slug,
+                "video_no":video_counter
+            })
+        
         return context
 
 class MyCoursesView(LoginRequiredMixin, ListView):
@@ -182,17 +183,19 @@ class SearchView(View):
                 is_owned=Exists(Purchase.objects.filter(student=self.request.user, course=OuterRef('pk')))
             )
         return render(request, 'core/components/viewCourse.html', context)
+ 
+
+        
+
+class ViewCertificate(DetailView):
+    template_name = 'core/view-certificate.html'
+    model = Certificate
+    slug_field = 'key'
+    slug_url_kwarg = 'key'
+    def get_queryset(self):
+        return super().get_queryset().filter(key=self.kwargs['key'])
     
-class CreateCertificateView(LoginRequiredMixin, View):
-    def post(self, request, *args, **kwargs):
-        student = request.user 
-        course_slug = request.POST.get('course_slug')
-        grades = Grade.objects.filter(course__slug=course_slug, student=student, passed=True)
-        # grades = grades.distinct()
-        # if len(grades) == :
-        
-        return redirect(reverse_lazy('core:'))
-    def get(self, request, *args, **kwargs):
-        # Show Certificate
-        
-        pass 
+    def get_context_data(self, **kwargs):
+        context = super(ViewCertificate, self).get_context_data(**kwargs)
+        return context
+    

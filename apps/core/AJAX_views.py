@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.urls import reverse_lazy
 from .models import *
+from .utils import main
 from django.db.models import Exists, OuterRef
 from django.db.models import Q
 class SearchView(View):
@@ -65,7 +66,7 @@ class CorrectionView(LoginRequiredMixin, View):
             context["Data"][question.id] = { "right_answer":right_answer_id,
                                              "chosen_answer":chosen_answer_id }
         # Required_percentage_to_pass = 70%
-        percentage = correct_answer_counter/len(questions)
+        percentage = correct_answer_counter / len(questions)
         obj = Grade(video=question.video, student=request.user)
         if percentage >= .70:
             obj.passed=True
@@ -121,3 +122,17 @@ class AddToCartView(View):
             Cart.objects.get_or_create(course=course, student=request.user)
             
         return response
+
+
+class CreateCertificateView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        # First, check if student is eligible to get the certificate, then create it. 
+        student = request.user 
+        course_slug = kwargs['course_slug']
+        course_obj = Course.objects.filter(slug=course_slug).first()
+        if course_obj.is_eligible_to_get_certificate(student):
+            obj = main.create_certificate(course_obj, student)
+            return redirect(reverse_lazy('core:view-certificate', kwargs={'key':obj.key}))
+        else:
+            return HttpResponse('Unauthorized', status=401)
+        

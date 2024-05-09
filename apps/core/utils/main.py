@@ -1,6 +1,6 @@
 import datetime
 import cv2
-
+from ..models import *
 def get_duration(filename):
     video = cv2.VideoCapture(filename)
     fps = int(video.get(cv2.CAP_PROP_FPS))
@@ -10,5 +10,9 @@ def get_duration(filename):
     video_time = datetime.timedelta(seconds=seconds)
     return video_time
 
-def create_certificate(fullname, instructor_name, key, course_name):
+def create_certificate(course, student):
+    inst = Certificate.objects.create(course=course, student=student) 
+    return inst
+
+def create_certificate_pdf(fullname, instructor_name, key, course_name):
     pass

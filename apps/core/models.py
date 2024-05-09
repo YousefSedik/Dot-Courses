@@ -42,6 +42,23 @@ class Course(models.Model):
             return f'{(self.price * (100-self.discount)/100):.2f}'
         return 0
     
+    def is_eligible_to_get_certificate(self, student: User) -> bool:
+        grades = Grade.objects.filter(student=student, video__course=self, passed=True)
+        questions = Question.objects.filter(video__course=self)
+        unique_videos = 0
+        mp = {}
+        for question in questions:
+            if mp.get(question.video):
+                pass
+            else:
+                unique_videos += 1
+                mp[question.video] = 1
+        
+        if unique_videos == len(grades):
+            return True
+
+        return False
+
     def __str__(self):
         return f'{self.slug}'
 
@@ -81,14 +98,26 @@ key_length = 10
 class Certificate(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    key = models.CharField(max_length=10, primary_key=True)
+    key = models.SlugField(null=False)
     def __str__(self):
         return f"{self.student} have a certificate in this course {self.course}"
     
     def generate_key(self):
-        random_key = ''.join(secrets.choice(alphabet) for _ in range(key_length))
-        self.key = random_key
+        while True:
+            random_key = ''.join(secrets.choice(alphabet) for _ in range(key_length))
+            if not Certificate.objects.filter(key=random_key).exists():
+                self.key = random_key
+                break
 
+    
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.generate_key()
+        return super(Certificate, self).save(*args, **kwargs) 
+    
+    class Meta:
+        unique_together = [['student', 'course']]
+    
 class Purchase(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
