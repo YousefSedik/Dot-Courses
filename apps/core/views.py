@@ -48,8 +48,8 @@ class CartView(ListView):
         context = super(CartView, self).get_context_data(**kwargs)
         total_price = 0 
         for obj in context['courses']:
-            if obj.price:
-                total_price += obj.price
+            if obj.price:                   
+                total_price += obj.discounted_price
             
         context['total_price'] = total_price 
         return context

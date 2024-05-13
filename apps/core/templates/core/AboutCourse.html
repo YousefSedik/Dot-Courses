@@ -19,10 +19,16 @@
 
                     {% if course.price %}
                     <p class="card-text">Price: ${{ course.price }}</p>
-                    {% if course.discount %}
-                    <p class="card-text">Discount: {{ course.discount }}%</p>
-                    <p class="card-text">Discounted Price:{{ course.final_price }} </p>
+                        {% if course.discount %}
+                        <p class="card-text">Discount: {{ course.discount }}%</p>
+                        <p class="card-text">Discounted Price:{{ course.final_price }} </p>
+                        {% endif %}
                     {% endif %}
+                    {% if not course.is_owned and course.id not in in_cart %}
+                    <button class="btn btn-primary mb-1 mt-1" hx-post="{% url 'core:AddToCart' course.id %}"
+                        hx-swap="delete" onclick="increment_cart()">
+                        Add to Cart
+                    </button>
                     {% endif %}
 
                 </div>
@@ -54,12 +60,7 @@
         </div>
         <div class="row">
             <div class="col">
-                {% if not course.is_owned and course.id not in in_cart %}
-                <button class="btn btn-primary mb-1 mt-1" hx-post="{% url 'core:AddToCart' course.id %}"
-                    hx-swap="delete">
-                    Add to Cart
-                </button>
-                {% endif %}
+                
             </div>
             
         </div>
@@ -113,8 +114,14 @@
             
         </div>
         {% endif %}
-
-
+        <script>
+            function increment_cart() {
+                var current = document.getElementById('counter').innerHTML;
+                var currentInt = parseInt(current); 
+                var incrementedValue = currentInt + 1;
+                document.getElementById('counter').innerHTML = incrementedValue;
+            }
+        </script>
     </div>
 </div>
 {% endblock %}

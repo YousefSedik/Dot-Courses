@@ -58,7 +58,11 @@ class Course(models.Model):
             return True
 
         return False
-
+    @property
+    def discounted_price(self):
+        if self.discount:
+            return (100 - self.discount)/100 * int(self.price)
+        return self.price
     def __str__(self):
         return f'{self.slug}'
 
@@ -192,10 +196,12 @@ def remove_duration_signal(instance, *args, **kwargs):
     course_obj.duration -= video_time
     course_obj.save()
 
-@receiver(pre_save, sender=Question)
+@receiver(post_save, sender=Question)
 def adding_right_answer(instance, *args, **kwargs):
     # if the right_answer is getting updated then you should make 
     # sure that the Choice.question.id == question.id 
+    # if instance.pk:
+    #     if
     # if instance.question.id != question.id :
     #     raise Exception('The Chosen Answer Dosen/''t belong to this question!')
     pass 
