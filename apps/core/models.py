@@ -58,6 +58,7 @@ class Course(models.Model):
             return True
 
         return False
+
     @property
     def discounted_price(self):
         if self.discount:
@@ -98,11 +99,14 @@ import secrets
 import string
 alphabet = string.ascii_letters + string.digits
 key_length = 10 
+from .utils import main
+import os 
 
 class Certificate(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     key = models.SlugField(null=False)
+    certificate_pdf = models.FileField(upload_to='certificates/', null=True)
     def __str__(self):
         return f"{self.student} have a certificate in this course {self.course}"
     
@@ -117,6 +121,12 @@ class Certificate(models.Model):
     def save(self, *args, **kwargs):
         if not self.key:
             self.generate_key()
+        pdf = main.CertificatePDF(fullname=self.student.full_name, \
+                                instructor_name=self.course.instructor.full_name,\
+                                key=self.key, \
+                                course_name=self.course.name)
+        certificate_path = pdf.create()
+        self.certificate_pdf.name = certificate_path
         return super(Certificate, self).save(*args, **kwargs) 
     
     class Meta:

@@ -9,6 +9,8 @@ AJAX_urlpatterns = [
     path('update-or-add-rate/<int:course_id>/<int:is_new>', AJAX_views.UpdateOrAddRateView.as_view(), name='AddRate'),
     path('correction/<int:course_id>/<int:video_id>', AJAX_views.CorrectionView.as_view(), name='Correction'),
     path('create-certificate/<slug:course_slug>', AJAX_views.CreateCertificateView.as_view(), name='cerate-certificate'),
+    path('search', AJAX_views.SearchView.as_view(), name='search'),
+
 ]
 
 main_urlpatterns = [
@@ -20,8 +22,7 @@ main_urlpatterns = [
     path('course/<slug:course_slug>/<int:video_no>/watch', views.VideoView.as_view(), name='ViewCourse'),
     path('course/<slug:course_slug>/<int:video_id>/exam', views.TestCourseView.as_view(), name='TestCourse'),
     path('my-courses', views.MyCoursesView.as_view(), name='MyCourses'),
-    path('search', views.SearchView.as_view(), name='search'),
-    path('certificate/<slug:key>', views.ViewCertificate.as_view(), name='view-certificate'),
+    path('certificate/<slug:key>', views.certificate_view, name='view-certificate'),
 
 ]
 

@@ -185,17 +185,14 @@ class SearchView(View):
         return render(request, 'core/components/viewCourse.html', context)
  
 
-        
+import os
+from django.http import FileResponse, Http404
 
-class ViewCertificate(DetailView):
-    template_name = 'core/view-certificate.html'
-    model = Certificate
-    slug_field = 'key'
-    slug_url_kwarg = 'key'
-    def get_queryset(self):
-        return super().get_queryset().filter(key=self.kwargs['key'])
+def certificate_view(request, key):
     
-    def get_context_data(self, **kwargs):
-        context = super(ViewCertificate, self).get_context_data(**kwargs)
-        return context
-    
+    # print(os.path.join(BASE_DIR))
+    pdf_url = get_object_or_404(Certificate, key=key).certificate_pdf.path
+    try:
+        return FileResponse(open(pdf_url, 'rb'), content_type='application/pdf')
+    except FileNotFoundError:
+        raise Http404()

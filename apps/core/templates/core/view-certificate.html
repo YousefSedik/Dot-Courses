@@ -1,6 +1,30 @@
-{% extends 'core/main.html' %} 
-{% block title %} 
-{% endblock title %} 
-{% block content %}
-    <iframe src="{}" frameborder="0"></iframe>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+
+<style>
+    .pdf {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+    }
+
+    .pdf,
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+</style>
+
+<body>
+
+    <object class="pdf" 
+            data="{{ certificate.certificate_pdf.url }}"
+            width="800"
+            height="500">
+    </object>
+</body>
+
+</html>
+        

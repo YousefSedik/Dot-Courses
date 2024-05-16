@@ -118,8 +118,9 @@ class AddToCartView(View):
                 response.set_cookie('cart', cart_ids)
             
         else:
-            course = get_object_or_404(Course, pk=kwargs['course_id'])
-            Cart.objects.get_or_create(course=course, student=request.user)
+            student = request.user 
+            if not Purchase.objects.filter(course__id=kwargs['course_id'], student=student).exists():
+                Cart.objects.get_or_create(course__id=kwargs['course_id'], student=student)
             
         return response
 
@@ -131,8 +132,10 @@ class CreateCertificateView(LoginRequiredMixin, View):
         course_slug = kwargs['course_slug']
         course_obj = Course.objects.filter(slug=course_slug).first()
         if course_obj.is_eligible_to_get_certificate(student):
-            obj = main.create_certificate(course_obj, student)
+            obj = Certificate.objects.create(course=course_obj, student=student) 
+            
             return redirect(reverse_lazy('core:view-certificate', kwargs={'key':obj.key}))
+        
         else:
             return HttpResponse('Unauthorized', status=401)
         
