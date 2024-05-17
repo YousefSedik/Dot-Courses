@@ -1,31 +1,31 @@
 {% extends 'core/main.html' %}
 
 {% block title %}
-  My Courses 
+My Courses
 {% endblock title %}
-  
+
 {% block content %}
 <div class="container text-center">
-{% if courses is None %}
-<h1>You have no courses </h1>
-{% else %}
-    <!-- <div class="row"> -->
-        <!-- <div class="col-9"> -->
-            {% for purchase in courses %}
-            <div class="card mb-3 mt-3" id="purchase.course-{{purchase.course.id}}">
-              <img src="{{ purchase.course.thumbnail.url }}" height="240" width="1000" class="card-img-top" alt="Course Thumbnail.">
-              <div class="card-body">
-                <h5 class="card-title">{{ purchase.course.name }}</h5>
-                <p class="card-text">{{ purchase.course.description }}</p>
-                <p class="card-text"><small class="text-body-secondary">By {{purchase.course.instructor.full_name}}</small></p>
-                <a class="btn btn-primary" href="{% url 'core:about_course' course_slug=purchase.course.slug %}">Go To Course </a>
-              </div>
-            </div>
-            
-            {% endfor %}
-        <!-- </div> -->
-    <!-- </div> -->
-    {% endif %}
-</div>  
+  {% if courses is None %}
+  <h1>You have no courses </h1>
+  {% else %}
+  <!-- <div class="row"> -->
+  <!-- <div class="col-9"> -->
+  {% for purchase in courses %}
+  <div class="card mb-3 mt-3" id="purchase.course-{{purchase.course.id}}">
+    <img src="{{ purchase.course.thumbnail.url }}" height="240" width="1000" class="card-img-top"
+      alt="Course Thumbnail.">
+    <div class="card-body">
+      <h5 class="card-title">{{ purchase.course.name }}</h5>
+      <p class="card-text">{{ purchase.course.description }}</p>
+      <p class="card-text"><small class="text-body-secondary">By {{purchase.course.instructor.full_name}}</small></p>
+      <a class="btn btn-primary" href="{% url 'core:about_course' course_slug=purchase.course.slug %}">Go To Course </a>
+    </div>
+  </div>
+
+  {% endfor %}
+  <!-- </div> -->
+  <!-- </div> -->
+  {% endif %}
+</div>
 {% endblock content %}
-    

@@ -18,8 +18,9 @@ Cart
                     <p class="card-text"> {{ course.description }} </p>
                     <p class="card-text"><small class="text-body-secondary">By {{course.instructor.full_name}}</small>
                     </p>
-                    <button slug="{{course.slug}}" class="btn btn-danger" hx-delete="{% url 'core:DeleteFromCart' course.id %}"
-                        hx-target="#course-{{course.id}}" hx-swap="delete" onclick="delete_course_element(this)">
+                    <button slug="{{course.slug}}" class="btn btn-danger"
+                        hx-delete="{% url 'core:DeleteFromCart' course.id %}" hx-target="#course-{{course.id}}"
+                        hx-swap="delete" onclick="delete_course_element(this)">
                         Remove From Cart
                     </button>
                 </div>
@@ -41,32 +42,32 @@ Cart
             document.getElementById('total_price').innerHTML = new_total_price
 
             // Update Cart(N)
-            counter = parseInt(document.getElementById('counter').innerHTML) 
+            counter = parseInt(document.getElementById('counter').innerHTML)
             counter -= 1
             document.getElementById('counter').innerHTML = counter
-            
+
         }
         function setup_cart_counter() {
             data = document.getElementsByClassName(" card mb-3 obj")
             document.getElementById('counter').innerHTML = data.length
-        } 
+        }
         setup_cart_counter() 
     </script>
     <div class="card">
         <div class="card-body">
             <ul class="list-group">
                 {% for course in courses %}
-                    <li class="list-group-item" id="cs-{{course.slug}}" 
-                    price="{% if course.discounted_price %}{{course.discounted_price}}{% else %}0{% endif %}" > 
-                        <h5>
-                            {{course.name}} 
-                            {% if course.discounted_price %}: {{course.discounted_price}}
-                            {% else %} 0 
-                            {% endif %}
-                        </h5>
-                    </li>
+                <li class="list-group-item" id="cs-{{course.slug}}"
+                    price="{% if course.discounted_price %}{{course.discounted_price}}{% else %}0{% endif %}">
+                    <h5>
+                        {{course.name}}
+                        {% if course.discounted_price %}: {{course.discounted_price}}
+                        {% else %} 0
+                        {% endif %}
+                    </h5>
+                </li>
                 {% endfor %}
-                <li class="list-group-item" >
+                <li class="list-group-item">
                     <h3>Total Price:<span id="total_price"> {{total_price}} </span></h3>
                 </li>
                 <button class="btn btn-primary" href="{% url 'payment:Checkout' %}""> Checkout</button>

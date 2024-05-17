@@ -12,14 +12,16 @@
           {{ course.description }}
         </p>
         <div id="card-{{ course.id }}">
-          <a href="{% url 'core:about_course' course.slug %}" class="btn btn-primary mb-1 mt-1"> Open</a> 
+          <a href="{% url 'core:about_course' course.slug %}" class="btn btn-primary mb-1 mt-1"> Open</a>
           {% if course.id in in_cart %}
-          
-          <button href="{% url 'payment:Checkout' %}" class="btn btn-primary mb-1 mt-1"> Added To Cart.. Checkout </button>
+
+          <button href="{% url 'payment:Checkout' %}" class="btn btn-primary mb-1 mt-1"> Added To Cart.. Checkout
+          </button>
           {% elif course.is_owned %}
-              
+
           {% else %}
-          <button onclick="increment_cart()" id="course-add-to-cart-{{course.id}}" class="btn btn-primary mb-1 mt-1" hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="outerHTML"
+          <button onclick="increment_cart()" id="course-add-to-cart-{{course.id}}" class="btn btn-primary mb-1 mt-1"
+            hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="outerHTML"
             hx-target="#course-add-to-cart-{{course.id}}">
             Add to Cart
           </button>
@@ -34,13 +36,13 @@
 
           <script>
             function increment_cart() {
-                var current = document.getElementById('counter').innerHTML;
-                var currentInt = parseInt(current); 
-                var incrementedValue = currentInt + 1;
-                document.getElementById('counter').innerHTML = incrementedValue;
+              var current = document.getElementById('counter').innerHTML;
+              var currentInt = parseInt(current);
+              var incrementedValue = currentInt + 1;
+              document.getElementById('counter').innerHTML = incrementedValue;
             }
-        </script>
-        
+          </script>
+
 
 
         </div>

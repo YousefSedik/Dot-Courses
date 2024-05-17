@@ -2,35 +2,35 @@
 
 
 {% block title %}
-  Dot Courses  
+Dot Courses
 {% endblock title %}
-  
+
 {% block content %}
 <div class="container">
-  
-    
+
+
   <!--  Verify Message  -->
-  
-  
+
+
   <!-- Search Box -->
   <!-- <div class="card mb-5 mt-4"> -->
-    <div class="card-body">
-      <div class="container-fluid">
-        <form class="d-flex" role="search" hx-get="{% url 'core:search' %}" hx-target="#all-courses">
-          <input name='q' class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <br>
-          <button class="btn btn-outline-success ml-2" type="submit">Search</button>
-        </form>
-      </div>
+  <div class="card-body">
+    <div class="container-fluid">
+      <form class="d-flex" role="search" hx-get="{% url 'core:search' %}" hx-target="#all-courses">
+        <input name='q' class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <br>
+        <button class="btn btn-outline-success ml-2" type="submit">Search</button>
+      </form>
     </div>
-    <hr>
+  </div>
+  <hr>
   <!-- </div> -->
-  
+
   <!-- View Courses -->
-  
-      {% include 'core/components/viewCourse.html' %}
-    
-  
+
+  {% include 'core/components/viewCourse.html' %}
+
+
 </div>
 
 

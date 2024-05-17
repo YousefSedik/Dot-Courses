@@ -19,10 +19,10 @@
 
                     {% if course.price %}
                     <p class="card-text">Price: ${{ course.price }}</p>
-                        {% if course.discount %}
-                        <p class="card-text">Discount: {{ course.discount }}%</p>
-                        <p class="card-text">Discounted Price:{{ course.final_price }} </p>
-                        {% endif %}
+                    {% if course.discount %}
+                    <p class="card-text">Discount: {{ course.discount }}%</p>
+                    <p class="card-text">Discounted Price:{{ course.final_price }} </p>
+                    {% endif %}
                     {% endif %}
                     {% if not course.is_owned and course.id not in in_cart %}
                     <button class="btn btn-primary mb-1 mt-1" hx-post="{% url 'core:AddToCart' course.id %}"
@@ -60,9 +60,9 @@
         </div>
         <div class="row">
             <div class="col">
-                
+
             </div>
-            
+
         </div>
         <div class="col-md-4 mt-5 mb-4">
             <div class="card">
@@ -83,41 +83,41 @@
                     </ul>
                 </div>
             </div>
-            
+
         </div>
-        
+
         {% if rates %}
-            
-        
-            
+
+
+
         <div class="col-md-4 mt-5 mb-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Rating</h5>
-                    
+
                     <ul class="list-group">
                         {% for rate in rates %}
                         <!-- <li class="list-group-item"> -->
-                            <div class="card mt-2 mb-2">
-                                <h5 class="card-header">{{ rate.student.first_name }}</h5>
-                                <div class="card-body">
-                                  <h5 class="card-title">Rate: {{rate.rate}} / 5 </h5>
-                                  <p class="card-text"> {{ rate.review_text }}</p>
-                                </div>
-                              </div>
+                        <div class="card mt-2 mb-2">
+                            <h5 class="card-header">{{ rate.student.first_name }}</h5>
+                            <div class="card-body">
+                                <h5 class="card-title">Rate: {{rate.rate}} / 5 </h5>
+                                <p class="card-text"> {{ rate.review_text }}</p>
+                            </div>
+                        </div>
                         <!-- </li> -->
-                        
+
                         {% endfor %}
                     </ul>
                 </div>
             </div>
-            
+
         </div>
         {% endif %}
         <script>
             function increment_cart() {
                 var current = document.getElementById('counter').innerHTML;
-                var currentInt = parseInt(current); 
+                var currentInt = parseInt(current);
                 var incrementedValue = currentInt + 1;
                 document.getElementById('counter').innerHTML = incrementedValue;
             }
