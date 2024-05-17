@@ -33,7 +33,6 @@ class CertificatePDF:
     def create_tmp_folder(self):
         try:
             os.mkdir(self.tmp_folder_path)
-            print("file created", self.tmp_folder_path)
         except FileExistsError:
             print("File Already Exists!")
     

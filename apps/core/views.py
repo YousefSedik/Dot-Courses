@@ -190,7 +190,6 @@ from django.http import FileResponse, Http404
 
 def certificate_view(request, key):
     
-    # print(os.path.join(BASE_DIR))
     pdf_url = get_object_or_404(Certificate, key=key).certificate_pdf.path
     try:
         return FileResponse(open(pdf_url, 'rb'), content_type='application/pdf')
