@@ -120,7 +120,8 @@ class AddToCartView(View):
         else:
             student = request.user 
             if not Purchase.objects.filter(course__id=kwargs['course_id'], student=student).exists():
-                Cart.objects.get_or_create(course__id=kwargs['course_id'], student=student)
+                cart = Cart.objects.create(course_id=kwargs['course_id'], student=student)
+
             
         return response
 
