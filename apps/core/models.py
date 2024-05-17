@@ -42,6 +42,28 @@ class Course(models.Model):
             return f'{(self.price * (100-self.discount)/100):.2f}'
         return 0
     
+    def is_eligible_to_get_certificate(self, student: User) -> bool:
+        grades = Grade.objects.filter(student=student, video__course=self, passed=True)
+        questions = Question.objects.filter(video__course=self)
+        unique_videos = 0
+        mp = {}
+        for question in questions:
+            if mp.get(question.video):
+                pass
+            else:
+                unique_videos += 1
+                mp[question.video] = 1
+        
+        if unique_videos == len(grades):
+            return True
+
+        return False
+
+    @property
+    def discounted_price(self):
+        if self.discount:
+            return (100 - self.discount)/100 * int(self.price)
+        return self.price
     def __str__(self):
         return f'{self.slug}'
 
@@ -77,18 +99,39 @@ import secrets
 import string
 alphabet = string.ascii_letters + string.digits
 key_length = 10 
+from .utils import main
+import os 
 
 class Certificate(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    key = models.CharField(max_length=10, primary_key=True)
+    key = models.SlugField(null=False)
+    certificate_pdf = models.FileField(upload_to='certificates/', null=True)
     def __str__(self):
         return f"{self.student} have a certificate in this course {self.course}"
     
     def generate_key(self):
-        random_key = ''.join(secrets.choice(alphabet) for _ in range(key_length))
-        self.key = random_key
+        while True:
+            random_key = ''.join(secrets.choice(alphabet) for _ in range(key_length))
+            if not Certificate.objects.filter(key=random_key).exists():
+                self.key = random_key
+                break
 
+    
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.generate_key()
+        pdf = main.CertificatePDF(fullname=self.student.full_name, \
+                                instructor_name=self.course.instructor.full_name,\
+                                key=self.key, \
+                                course_name=self.course.name)
+        certificate_path = pdf.create()
+        self.certificate_pdf.name = certificate_path
+        return super(Certificate, self).save(*args, **kwargs) 
+    
+    class Meta:
+        unique_together = [['student', 'course']]
+    
 class Purchase(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -163,10 +206,12 @@ def remove_duration_signal(instance, *args, **kwargs):
     course_obj.duration -= video_time
     course_obj.save()
 
-@receiver(pre_save, sender=Question)
+@receiver(post_save, sender=Question)
 def adding_right_answer(instance, *args, **kwargs):
     # if the right_answer is getting updated then you should make 
     # sure that the Choice.question.id == question.id 
+    # if instance.pk:
+    #     if
     # if instance.question.id != question.id :
     #     raise Exception('The Chosen Answer Dosen/''t belong to this question!')
     pass 

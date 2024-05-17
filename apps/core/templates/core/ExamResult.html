@@ -4,6 +4,14 @@
     chosen_answer="{{ value.chosen_answer }}"
     ></div>    
 {% endfor %}
+
+{% if passed %}
+<div class="passed"></div>
+{% else %}
+<div class="not-passed"></div>
+
+{% endif %}
+    
 <script>
     let data = document.getElementsByClassName("Data")
     for (let i = 0; i < data.length; i++){
@@ -22,4 +30,15 @@
     dataDivs.forEach(element => {
          element.parentNode.removeChild(element);
      });
+
+     // change submit btn to next video or refresh. 
+     let passed = document.getElementsByClassName("passed").length;
+     let btn = document.getElementsByClassName("btn btn-primary mt-4");
+     if (passed){
+        btn[0].innerHTML = "Next Video";
+     }
+     else {
+        btn[0].innerHTML = "Retry";
+     }
+
 </script>

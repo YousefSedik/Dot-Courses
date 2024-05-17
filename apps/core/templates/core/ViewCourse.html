@@ -32,8 +32,26 @@
                     (Exam) {{ forloop.counter }}
                   </a>
                 {% endif %}
+                {% endfor %}
                 
-              {% endfor %}
+                
+                {% if got_certificate %}
+                  <a class="list-group-item list-group-item-action" 
+                  href="{% url 'core:view-certificate' key=got_certificate.key %}" 
+                  style="background-color: burlywood;">
+                    View Certificate</a>
+                
+                  
+                {% elif is_eligible_to_get_certificate %}
+                <form method="post" action="{% url 'core:cerate-certificate' course_slug=course.slug %}">
+                  {% csrf_token %}
+                  <button class="list-group-item list-group-item-action" type="submit" 
+                  style="background-color: burlywood;" >
+                    Get Certificate
+                  </button>
+                </form>
+                {% endif %}
+              
           </ul>
       </div>
   </div>

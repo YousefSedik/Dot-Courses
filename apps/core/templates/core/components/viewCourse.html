@@ -19,12 +19,12 @@
           {% elif course.is_owned %}
               
           {% else %}
-          <button onclick="increment_cart()" class="btn btn-primary mb-1 mt-1" hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="outerHTML"
-            hx-target="#card-{{ course.id }}">
+          <button onclick="increment_cart()" id="course-add-to-cart-{{course.id}}" class="btn btn-primary mb-1 mt-1" hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="outerHTML"
+            hx-target="#course-add-to-cart-{{course.id}}">
             Add to Cart
           </button>
           {% if course.price %}
-          <button class="btn btn-primary mb-1 mt-1"> {{course.price }} </button>
+          <button class="btn btn-primary mb-1 mt-1"> {{course.discounted_price }} </button>
           {% else %}
           <button class="btn btn-primary mb-1 mt-1"> Free </button>
 

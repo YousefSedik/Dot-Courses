@@ -1,69 +1,78 @@
 {% extends 'core/main.html' %}
-
 {% block title %}
-    Cart 
+Cart
 {% endblock title %}
-    
-
 {% block content %}
 <div class="container text-center">
-{% if courses is None %}
-<h1>There Are No Courses in the Cart .. </h1>
-{% else %}
+    {% if courses is None %}
+    <h1>There Are No Courses in the Cart .. </h1>
+    {% else %}
     <div class="row">
-        <div class="col-9">
+        <div class="col">
             {% for course in courses %}
-            <div class="card mb-3 obj" id="course-{{course.id}}">
-                <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="Course Thumbnail" height="200" width="300">
+            <div class="card mb-3 mt-3 obj" id="course-{{course.id}}" slug={{course.slug}}">
+                <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="Course Thumbnail" height="200"
+                    width="300">
                 <div class="card-body">
                     <h5 class="card-title">{{ course.name }}</h5>
                     <p class="card-text"> {{ course.description }} </p>
                     <p class="card-text"><small class="text-body-secondary">By {{course.instructor.full_name}}</small>
                     </p>
-                    <button class="btn btn-danger" 
-                    hx-delete="{% url 'core:DeleteFromCart' course.id %}"
-                    hx-target="#course-{{course.id}}"
-                    hx-swap="delete"
-                    onclick="decrement_cart_counter()"
-                    >
+                    <button slug="{{course.slug}}" class="btn btn-danger" hx-delete="{% url 'core:DeleteFromCart' course.id %}"
+                        hx-target="#course-{{course.id}}" hx-swap="delete" onclick="delete_course_element(this)">
                         Remove From Cart
                     </button>
                 </div>
             </div>
             {% endfor %}
-
-
         </div>
-        <div >
-            
-            {% for course in courses %}
-                <div>
-                    {% if course.price %}
-                        <h5> {{course.name}}: {{course.price}}</h5> 
-                    {% endif %}
-                </div>
-                {% endfor %}
-                <h3>Total Price:<span id="total_price"> {{total_price}} </span></h3>
-                
-            <button class="btn btn-primary" href="{% url 'payment:Checkout' %}""> Checkout</button>
-        </div>
+
     </div>
-    
+    <script>
+        function delete_course_element(element) {
+            // Remove Course From The List
+            course_slug = element.getAttribute('slug')
+            course_obj = document.getElementById(`cs-${course_slug}`)
+            course_price = parseInt(course_obj.getAttribute('price'))
+            course_obj.parentNode.removeChild(course_obj);
+            // Update total_price
+            total_price = parseInt(document.getElementById('total_price').innerHTML)
+            new_total_price = total_price - course_price
+            document.getElementById('total_price').innerHTML = new_total_price
+
+            // Update Cart(N)
+            counter = parseInt(document.getElementById('counter').innerHTML) 
+            counter -= 1
+            document.getElementById('counter').innerHTML = counter
+            
+        }
+        function setup_cart_counter() {
+            data = document.getElementsByClassName(" card mb-3 obj")
+            document.getElementById('counter').innerHTML = data.length
+        } 
+        setup_cart_counter() 
+    </script>
+    <div class="card">
+        <div class="card-body">
+            <ul class="list-group">
+                {% for course in courses %}
+                    <li class="list-group-item" id="cs-{{course.slug}}" 
+                    price="{% if course.discounted_price %}{{course.discounted_price}}{% else %}0{% endif %}" > 
+                        <h5>
+                            {{course.name}} 
+                            {% if course.discounted_price %}: {{course.discounted_price}}
+                            {% else %} 0 
+                            {% endif %}
+                        </h5>
+                    </li>
+                {% endfor %}
+                <li class="list-group-item" >
+                    <h3>Total Price:<span id="total_price"> {{total_price}} </span></h3>
+                </li>
+                <button class="btn btn-primary" href="{% url 'payment:Checkout' %}""> Checkout</button>
+            </ul>
+        </div>
+    </div>    
     {% endif %}
 </div>  
-<script>
-    function setup_cart_counter(){
-        
-        data = document.getElementsByClassName("card mb-3 obj")
-        document.getElementById('counter').innerHTML = data.length
-    }
-    setup_cart_counter()
-    
-    function decrement_cart_counter(){
-        counter = parseInt(document.getElementById('counter').innerHTML) 
-        counter -= 1 
-        document.getElementById('counter').innerHTML = counter
-    }
-</script>
-{% endblock content %}
-    
+        {% endblock content %}

@@ -5,6 +5,7 @@ db.sqlite3
 .env
 media/videos/*
 media/thumbnail/*
+media/certificates/*
 .idea
 erd.drawio
 UseCase.drawio
