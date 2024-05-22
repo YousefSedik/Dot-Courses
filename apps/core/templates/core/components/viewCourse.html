@@ -9,7 +9,12 @@
       <div class="card-body">
         <h5 class="card-title">{{ course.name }}</h5>
         <p class="card-text">
-          {{ course.description }}
+          {{ course.description|slice:":100" }}
+          {% if course.description|length > 100 %}
+            ...
+          {% endif %}
+            
+          
         </p>
         <div id="card-{{ course.id }}">
           <a href="{% url 'core:about_course' course.slug %}" class="btn btn-primary mb-1 mt-1"> Open</a>

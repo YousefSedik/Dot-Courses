@@ -6,8 +6,8 @@ Dot Course is a E-Learning platform, you can buy course or request access to an 
 
 ## Features
 
-- You Easily serch for a course using it's name, content, decription.
-- You Can Request To be an Instructor and start uploading courses for public users. 
+- You easily search for a course using it's name, content, description.
+- You can add rates, get certificates upon finishing the course exams. 
 
 
 ## Tech
@@ -52,7 +52,7 @@ EMAIL_USE_TLS=''
 
 Install the dependencies and devDependencies
 ```sh
-pip install -r requiremints.txt
+pip install -r requirements.txt
 py manage.py migrate 
 ```
 Then You Can Run The Development Directly Using

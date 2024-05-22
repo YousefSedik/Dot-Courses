@@ -90,7 +90,7 @@ class Question(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
     question = models.CharField(max_length=200)
     right_answer = models.ForeignKey(
-        "Choice", on_delete=models.CASCADE, related_name="answer", null=True, blank=True
+        "Choice", on_delete=models.SET_NULL, related_name="answer", null=True, blank=True
     )
 
     def __str__(self):
@@ -233,18 +233,6 @@ def remove_duration_signal(instance, *args, **kwargs):
     course_obj = instance.course
     course_obj.duration -= video_time
     course_obj.save()
-
-
-@receiver(post_save, sender=Question)
-def adding_right_answer(instance, *args, **kwargs):
-    # if the right_answer is getting updated then you should make
-    # sure that the Choice.question.id == question.id
-    # if instance.pk:
-    #     if
-    # if instance.question.id != question.id :
-    #     raise Exception('The Chosen Answer Dosen/''t belong to this question!')
-    pass
-
 
 @receiver(pre_save, sender=Purchase)
 def delete_obj_from_cart(instance, *args, **kwargs):
