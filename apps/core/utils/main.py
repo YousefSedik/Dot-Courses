@@ -1,16 +1,14 @@
 import datetime
-import cv2
 from ..models import *
 import os
+from pymediainfo import MediaInfo
 from django import conf
 
 
 def get_duration(filename):
-    video = cv2.VideoCapture(filename)
-    fps = int(video.get(cv2.CAP_PROP_FPS))
-    frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-    seconds = frame_count // fps
-    video_time = datetime.timedelta(seconds=seconds)
+    media_info = MediaInfo.parse(filename)
+    duration_in_ms = media_info.tracks[0].duration 
+    video_time = datetime.timedelta(seconds=int(duration_in_ms/ 1000))
     return video_time
 
 
