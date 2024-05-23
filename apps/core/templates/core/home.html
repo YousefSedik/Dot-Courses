@@ -16,7 +16,7 @@ Dot Courses
   <!-- <div class="card mb-5 mt-4"> -->
   <div class="card-body">
     <div class="container-fluid">
-      <form class="d-flex" role="search" hx-get="{% url 'core:search' %}" hx-target="#all-courses">
+      <form class="d-flex" role="search" hx-get="{% url 'core:search' %}" hx-target="#all-courses" hx-swap="outerHTML">
         <input name='q' class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
         <br>
         <button class="btn btn-outline-success ml-2" type="submit">Search</button>

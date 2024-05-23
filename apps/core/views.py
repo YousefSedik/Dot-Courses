@@ -149,7 +149,8 @@ class VideoView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         course_slug = self.kwargs["course_slug"]
         queryset = (
-            super(VideoView, self).get_queryset().filter(course__slug=course_slug)
+            super(VideoView, self).get_queryset().filter(course__slug=course_slug).\
+                prefetch_related('question_set').all()
         )
         return queryset
 
@@ -170,7 +171,6 @@ class VideoView(LoginRequiredMixin, ListView):
             context["is_eligible_to_get_certificate"] = context[
                 "course"
             ].is_eligible_to_get_certificate(self.request.user)
-            print(context["is_eligible_to_get_certificate"])
         
         return context
 
@@ -191,8 +191,7 @@ class TestCourseView(LoginRequiredMixin, ListView):
         return super(TestCourseView, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):  # primary data
-        course_slug, video_id = self.kwargs["course_slug"], self.kwargs["video_id"]
-        queryset = Question.objects.filter(video_id=video_id)
+        queryset = Question.objects.filter(video_id=self.kwargs["video_id"]).prefetch_related('choice_set').all()
         return queryset
 
     def get_context_data(self, **kwargs):

@@ -11,7 +11,6 @@ def cart_counter(request):
         in_cart = request.COOKIES.get("cart")
         if in_cart:
             in_cart = set(map(int, in_cart.split()))
-            in_cart = set(in_cart)
             context["in_cart"] = in_cart
             context["cart_counter"] = len(in_cart)
         else:
