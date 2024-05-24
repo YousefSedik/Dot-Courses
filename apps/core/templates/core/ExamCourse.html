@@ -33,7 +33,7 @@ Exam
                 {% endif %}
                 {% endfor %}
                 <button type="submit" class="btn btn-primary mt-4" hx-swap="afterend" disabled
-                    hx-target="#Questions-Form" hx-post="{% url 'core:Correction' course_id=course.id video_id=1 %}"
+                    hx-target="#Questions-Form" hx-post="{% url 'core:Correction' course_id=course.id video_counter=questions.first.video.counter %}"
                     hx-target="#Test-Div" hx-swap="outerHTML">Submit</button>
             </form>
         </div>

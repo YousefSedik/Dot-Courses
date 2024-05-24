@@ -7,7 +7,7 @@ AJAX_urlpatterns = [
     path('add-to-cart/<int:course_id>', AJAX_views.AddToCartView.as_view(), name='AddToCart'),
     path('delete-from-cart/<int:course_id>', AJAX_views.DeleteFromCartView.as_view(), name='DeleteFromCart'),
     path('update-or-add-rate/<int:course_id>/<int:is_new>', AJAX_views.UpdateOrAddRateView.as_view(), name='AddRate'),
-    path('correction/<int:course_id>/<int:video_id>', AJAX_views.CorrectionView.as_view(), name='Correction'),
+    path('correction/<int:course_id>/<int:video_counter>', AJAX_views.CorrectionView.as_view(), name='Correction'),
     path('create-certificate/<slug:course_slug>', AJAX_views.CreateCertificateView.as_view(), name='cerate-certificate'),
     path('search', AJAX_views.SearchView.as_view(), name='search'),
 

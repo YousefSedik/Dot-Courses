@@ -202,21 +202,24 @@ class TestCourseView(LoginRequiredMixin, ListView):
         )
         context["grade"] = grades.last()
         context["passed"] = grades.filter(passed=True).exists()
-        # Check if there is next video: Exam->video->counter + 1 available?
-        video_counter = Video.objects.get(pk=self.kwargs["video_id"]).counter + 1
+        if context['passed']:
+            # Check if there is next video: Exam->video->counter + 1 available?
+            video_counter = Video.objects.get(pk=self.kwargs["video_id"]).counter + 1
 
-        next_video = Video.objects.filter(
-            course__slug=self.kwargs["course_slug"], counter=video_counter
-        )
-
-        if next_video.exists():
-            context["next_video"] = reverse_lazy(
-                "core:ViewCourse",
-                kwargs={
-                    "course_slug": context["course"].slug,
-                    "video_no": video_counter,
-                },
+            next_video = Video.objects.filter(
+                course__slug=self.kwargs["course_slug"], counter=video_counter
             )
+
+            if not next_video.exists():
+                 video_counter -= 1
+                
+            context["next_video"] = reverse_lazy(
+                    "core:ViewCourse",
+                    kwargs={
+                        "course_slug": self.kwargs["course_slug"],
+                        "video_no": video_counter,
+                    },
+                )
 
         return context
 

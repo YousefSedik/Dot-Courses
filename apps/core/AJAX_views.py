@@ -60,7 +60,7 @@ class UpdateOrAddRateView(LoginRequiredMixin, View):
 class CorrectionView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         student = request.user
-        video_id, course_id = kwargs["video_id"], kwargs["course_id"]
+        video_counter, course_id = kwargs["video_counter"], kwargs["course_id"]
         data = request.POST  # QuestionID -> OptionID
         question_ids = dict(data.lists())
         questions = Question.objects.filter(id__in=question_ids).select_related(
@@ -74,7 +74,7 @@ class CorrectionView(LoginRequiredMixin, View):
                 raise Exception("Right Answer Should Be Added to the question. ")
 
             right_answer_id = question.right_answer.id
-            chosen_answer_id = data[str(question.id)][0]
+            chosen_answer_id = data[str(question.id)]
 
             if right_answer_id == int(chosen_answer_id):
                 correct_answer_counter += 1
@@ -89,6 +89,22 @@ class CorrectionView(LoginRequiredMixin, View):
         if percentage >= 0.70:
             obj.passed = True
             context["passed"] = True
+            course_slug = get_object_or_404(Course, pk=course_id).slug
+            video_counter = video_counter + 1
+            next_video = Video.objects.filter(
+                course__slug=course_slug, counter=video_counter
+            )
+            if not next_video.exists():
+                 video_counter -= 1
+                
+            context["next_obj"] = reverse_lazy(
+                    "core:ViewCourse",
+                    kwargs={
+                        "course_slug": course_slug,
+                        "video_no": video_counter,
+                    },
+                )
+            
         else:
             obj.passed = False
             context["passed"] = False

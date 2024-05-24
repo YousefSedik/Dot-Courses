@@ -6,7 +6,6 @@
 <div class="passed"></div>
 {% else %}
 <div class="not-passed"></div>
-
 {% endif %}
 
 <script>
@@ -30,12 +29,16 @@
 
     // change submit btn to next video or refresh. 
     let passed = document.getElementsByClassName("passed").length;
-    let btn = document.getElementsByClassName("btn btn-primary mt-4");
+    let btn = document.getElementsByClassName("btn btn-primary mt-4")[0]
     if (passed) {
-        btn[0].innerHTML = "Next Video";
+        btn.outerHTML = '<a class="btn btn-primary mt-4" href="{{next_obj}}">Next Video</a>';
+
     }
     else {
-        btn[0].innerHTML = "Retry";
+        btn.innerHTML = "Retry";
+        btn.addEventListener("click", function() {
+            location.reload();
+        });
     }
 
 </script>
