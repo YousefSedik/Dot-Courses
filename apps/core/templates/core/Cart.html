@@ -58,10 +58,10 @@ Cart
             <ul class="list-group">
                 {% for course in courses %}
                 <li class="list-group-item" id="cs-{{course.slug}}"
-                    price="{% if course.discounted_price %}{{course.discounted_price}}{% else %}0{% endif %}">
+                    price="{% if course.final_price %}{{course.final_price}}{% else %}0{% endif %}">
                     <h5>
                         {{course.name}}
-                        {% if course.discounted_price %}: {{course.discounted_price}}
+                        {% if course.final_price %}: {{course.final_price}}
                         {% else %} 0
                         {% endif %}
                     </h5>

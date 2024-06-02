@@ -62,11 +62,6 @@ class Course(models.Model):
 
         return False
 
-    @property
-    def discounted_price(self):
-        if self.discount:
-            return (100 - self.discount) / 100 * int(self.price)
-        return self.price
 
     def __str__(self):
         return f"{self.slug}"
@@ -83,7 +78,7 @@ class Video(models.Model):
         unique_together = [["course", "counter"]]
 
     def __str__(self):
-        return f"{self.name} is for {self.course.slug} course"
+        return f"{self.name} is for {self.course.slug} course"    
 
 
 class Question(models.Model):
@@ -133,14 +128,14 @@ class Certificate(models.Model):
     def save(self, *args, **kwargs):
         if not self.key:
             self.generate_key()
-        pdf = main.CertificatePDF(
-            fullname=self.student.full_name,
-            instructor_name=self.course.instructor.full_name,
-            key=self.key,
-            course_name=self.course.name,
-        )
-        certificate_path = pdf.create()
-        self.certificate_pdf.name = certificate_path
+            pdf = main.CertificatePDF(
+                fullname=self.student.full_name,
+                instructor_name=self.course.instructor.full_name,
+                key=self.key,
+                course_name=self.course.name,
+            )
+            certificate_path = pdf.create()
+            self.certificate_pdf.name = certificate_path
         return super(Certificate, self).save(*args, **kwargs)
 
     class Meta:
@@ -179,6 +174,9 @@ class Grade(models.Model):
     def __str__(self):
         return f"{self.student.full_name}, passed: {self.passed}, on {self.video}"
 
+class InstructorRequest(models.Model):
+    user = models.ForeignKey(User, verbose_name="User", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 # Signals
 from django.dispatch import receiver
@@ -209,7 +207,7 @@ def add_or_update_rating(sender, instance, *args, **kwargs):
         original_instance = sender.objects.get(pk=instance.pk)
         course_obj.rating_sum -= int(original_instance.rate)
         course_obj.rating_sum += int(instance.rate)
-
+    
     course_obj.save()
 
 
