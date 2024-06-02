@@ -1,6 +1,6 @@
 # Dot Course
 
-Dot Course is a E-Learning platform, you can purchase course, rate course,  on Dot Course!  
+Dot Course is a E-Learning platform.
 
 ## Features
 
