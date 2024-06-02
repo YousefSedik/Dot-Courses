@@ -1,13 +1,12 @@
 # Dot Course
 
-Dot Course is a E-Learning platform, you can buy course or request access to an instructor on Dot Course!  
-
-- Easy To Use 
+Dot Course is a E-Learning platform, you can purchase course, rate course,  on Dot Course!  
 
 ## Features
 
-- You easily search for a course using it's name, content, description.
-- You can add rates, get certificates upon finishing the course exams. 
+- You easily search for a course using it's name, content, description, instructor name.
+- You can rate course, get certificates upon passing all course exams, solve MXQs after watching video content.
+- Custimized Admin Panel for instructors.
 
 
 ## Tech
@@ -24,7 +23,7 @@ And of course Dot Course" itself is open source with a [public repository](https
 
 ## Installation
 
-Dot Course requires [Python](https://www.python.org/downloads/) v3+ a to run.
+Dot Course requires [Python](https://www.python.org/downloads/) v3+ to run.
 
 Create A Virtual Enviroment 
 ```sh
