@@ -63,7 +63,7 @@ class CartView(ListView):
         total_price = 0
         for obj in context["courses"]:
             if obj.price:
-                total_price += obj.discounted_price
+                total_price += obj.final_price
 
         context["total_price"] = total_price
         return context
