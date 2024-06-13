@@ -6,14 +6,20 @@ from django.contrib import admin
 class CourseAdmin(BaseAdmin):
     fields = ['name', 'slug', 'description', 'price', \
         'discount', 'thumbnail', 'category', 'duration','enrolled_counter',]
-    readonly_fields = ['enrolled_counter', 'duration']
-
-
+    readonly_fields = ['enrolled_counter', 'duration', 'slug']
+    
+    
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return self.readonly_fields + ['name']
+        return self.readonly_fields
     def save_model(self, request, obj, form, change):
         if obj.pk is not None:
             original_obj = Course.objects.get(pk=obj.pk)
-            if original_obj.enrolled_counter != obj.enrolled_counter:
-                obj.enrolled_counter = original_obj.enrolled_counter
+            obj.enrolled_counter = original_obj.enrolled_counter
+            obj.duration = original_obj.duration
+            obj.slug = original_obj.slug
+            obj.name = original_obj.name
         
         if not obj.pk: # add user to obj
             obj.instructor = request.user
