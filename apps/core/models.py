@@ -69,7 +69,9 @@ class Course(models.Model):
 
         return super().save(*args, **kwargs)
 
-    def super_slugify(self, course_name=self.name):
+    def super_slugify(self, course_name=None):
+        if course_name is None:
+            course_name = self.name
         course_name = slugify(course_name) 
         if not Course.objects.filter(slug=course_name).exists():
             return course_name
