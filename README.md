@@ -22,22 +22,22 @@ Dot Course is an E-Learning platform.
 And of course Dot Course" itself is open source with a [public repository](https://github.com/YousefSedik/Dot-Course/) on GitHub.
 
 Home page
-![Home Page](project-images/Home Page.png)
+![Home Page](project-images/Home%20Page.png)
 
 Home page
-![About Course View](project-images/About Course View.png)
+![About Course View](project-images/About%20Course%20View.png)
 
 Home page
-![Cart View](project-images/Cart View .png)
+![Cart View](project-images/Cart%20View%20.png)
 
 Home page
-![Solving MCQs](project-images/Solving MCQs  -Not Right Answers .png)
+![Solving MCQs](project-images/Solving%20MCQs%20%20-Not%20Right%20Answers%20.png)
 
 Home page
-![Solving MCQs](project-images/Solving MCQs.png)
+![Solving MCQs](project-images/Solving%20MCQs.png)
 
 Home page
-![View Course Content](project-images/View Course Content.png)
+![View Course Content](project-images/View%20Course%20Content.png)
 ## Installation
 
 Dot Course requires [Python](https://www.python.org/downloads/) v3+ to run.
