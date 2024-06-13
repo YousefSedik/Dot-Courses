@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from datetime import timedelta
-
+from random import randint 
+from django.template.defaultfilters import slugify
 User = get_user_model()
 
 
@@ -23,7 +24,7 @@ class Category(models.Model):
 class Course(models.Model):
     instructor = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=120)
-    slug = models.SlugField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
     price = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     discount = models.IntegerField(null=True, blank=True)
@@ -40,13 +41,13 @@ class Course(models.Model):
     def rate(self):
         if self.rating_added_counter:
             return f"{(self.rating_sum / self.rating_added_counter):.2f}"
-        return 0
+        return 5
 
     @property
     def final_price(self):
         if self.discount is not None:
             return f"{(self.price * (100-self.discount)/100):.2f}"
-        return 0
+        return self.price
 
     def is_eligible_to_get_certificate(self, student: User) -> bool:
         grades = Grade.objects.filter(
@@ -62,7 +63,19 @@ class Course(models.Model):
 
         return False
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.slug = self.super_slugify()
 
+        return super().save(*args, **kwargs)
+
+    def super_slugify(self, course_name=self.name):
+        course_name = slugify(course_name) 
+        if not Course.objects.filter(slug=course_name).exists():
+            return course_name
+        else:
+            return self.super_slugify(course_name + str(randint(0,9)))
+        
     def __str__(self):
         return f"{self.slug}"
 

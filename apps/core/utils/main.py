@@ -1,16 +1,13 @@
 import datetime
-from ..models import *
 import os
 from pymediainfo import MediaInfo
 from django import conf
-
 
 def get_duration(filename):
     media_info = MediaInfo.parse(filename)
     duration_in_ms = media_info.tracks[0].duration 
     video_time = datetime.timedelta(seconds=int(duration_in_ms/ 1000))
     return video_time
-
 
 class CertificatePDF:
     def __init__(self, fullname, instructor_name, key, course_name):
