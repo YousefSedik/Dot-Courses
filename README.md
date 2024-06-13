@@ -1,12 +1,12 @@
 # Dot Course
 
-Dot Course is a E-Learning platform.
+Dot Course is an E-Learning platform.
 
 ## Features
 
 - You easily search for a course using it's name, content, description, instructor name.
-- You can rate course, get certificates upon passing all course exams, solve MXQs after watching video content.
-- Custimized Admin Panel for instructors.
+- You can rate course, get certificates upon passing all course exams, solve MCQs after watching video content.
+- Customized Admin Panel for instructors.
 
 
 ## Tech
@@ -25,7 +25,7 @@ And of course Dot Course" itself is open source with a [public repository](https
 
 Dot Course requires [Python](https://www.python.org/downloads/) v3+ to run.
 
-Create A Virtual Enviroment 
+Create A Virtual Enviroment (Optional)
 ```sh
 pip install venv 
 python -m venv venv
