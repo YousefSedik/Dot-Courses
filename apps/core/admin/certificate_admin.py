@@ -9,7 +9,7 @@ class CertificateAdmin(BaseAdmin):
     def get_queryset(self, request, **kwargs):
         qs = super().get_queryset(request, **kwargs)
         user = request.user
-        if user.is_instructor and user.is_staff and not user.is_superuser:
+        if user.is_instructor and not user.is_superuser:
             qs = qs.filter(instructor=user)
         
         return qs

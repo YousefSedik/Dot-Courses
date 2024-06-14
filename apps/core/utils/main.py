@@ -16,7 +16,7 @@ class CertificatePDF:
         self.key = key
         self.course_name = course_name
         self.BASE_DIR = conf.settings.BASE_DIR
-        self.tmp_folder_path = os.path.join(self.BASE_DIR, "tmp")
+        self.tmp_folder_path = os.path.join(self.BASE_DIR, "media\\tmp")
         self.pdf_path = None
         self.certificate_path = os.path.join(
             self.BASE_DIR, f"media\\certificates\\{self.key}.pdf"
@@ -44,7 +44,7 @@ class CertificatePDF:
         }
 
         CERTIFICATE_TEMPLATE_path = os.path.join(
-            self.BASE_DIR, "CERTIFICATE-TEMPLATE.pptx"
+            self.BASE_DIR, "media\CERTIFICATE-TEMPLATE.pptx"
         )
         end = f' -i {CERTIFICATE_TEMPLATE_path} -o {self.tmp_folder_path}\{replacements["<KEY>"]}.pptx'
         main_command = "python -m python_pptx_text_replacer.TextReplacer  "

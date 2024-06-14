@@ -9,13 +9,12 @@ class CourseBaseFilter(SimpleListFilter):
         courses = Course.objects.all()
         if not request.user.is_superuser:
             courses = courses.filter(instructor=request.user)
-
+        
         data = [(c.id, c.name) for c in courses]
         return data
 
     def queryset(self, request, queryset, filterDict={}):
-        if not request.user.is_superuser:
-            queryset = queryset.filter(**filterDict)
+        queryset = queryset.filter(**filterDict)
         return queryset
 
 class VideosBaseFilter(SimpleListFilter):
@@ -26,13 +25,15 @@ class VideosBaseFilter(SimpleListFilter):
         videos = Video.objects.all()
         if not request.user.is_superuser:
             videos = videos.filter(course__instructor=request.user)
+        if 'course' in request.GET:
+            videos = videos.filter(course_id=request.GET.get('course'))
+
 
         data = [(v.id, v.name) for v in videos]
         return data
 
     def queryset(self, request, queryset, filterDict={}):
-        if not request.user.is_superuser:
-            queryset = queryset.filter(**filterDict)
+        queryset = queryset.filter(**filterDict)
         return queryset
 
 class QuestionBaseFilter(SimpleListFilter):
@@ -43,13 +44,16 @@ class QuestionBaseFilter(SimpleListFilter):
         questions = Question.objects.all()
         if not request.user.is_superuser:
             questions = questions.filter(video__course__instructor=request.user)
-
+        if 'course' in request.GET:
+            questions = questions.filter(video__course_id=request.GET.get('course'))
+            
+        if 'video' in request.GET:
+            questions = questions.filter(video_id=request.GET.get('video'))
         data = [(q.id, q.question) for q in questions]
         return data
 
     def queryset(self, request, queryset, filterDict={}):
-        if not request.user.is_superuser:
-            queryset = queryset.filter(**filterDict)
+        queryset = queryset.filter(**filterDict)
         return queryset
 
 class CertificateCourseFilter(CourseBaseFilter):
