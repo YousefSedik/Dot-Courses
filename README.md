@@ -21,22 +21,22 @@ Dot Course is an E-Learning platform.
 
 And of course Dot Course" itself is open source with a [public repository](https://github.com/YousefSedik/Dot-Course/) on GitHub.
 
-Home page
+Home Page
 ![Home Page](project-images/Home%20Page.png)
 
-Home page
+About Course Page
 ![About Course View](project-images/About%20Course%20View.png)
 
-Home page
+Cart Page
 ![Cart View](project-images/Cart%20View%20.png)
 
-Home page
+Solving MCQs Page
 ![Solving MCQs](project-images/Solving%20MCQs%20%20-Not%20Right%20Answers%20.png)
 
-Home page
+Solving MCQs Page
 ![Solving MCQs](project-images/Solving%20MCQs.png)
 
-Home page
+Course Content Page
 ![View Course Content](project-images/View%20Course%20Content.png)
 ## Installation
 
