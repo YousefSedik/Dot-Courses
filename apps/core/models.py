@@ -1,8 +1,8 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 from datetime import timedelta
 from random import randint 
 from django.template.defaultfilters import slugify
+from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
@@ -46,7 +46,7 @@ class Course(models.Model):
     @property
     def final_price(self):
         if self.discount is not None:
-            return f"{(self.price * (100-self.discount)/100):.2f}"
+            return round(self.price * (100-self.discount)/100, 2)
         return self.price
 
     def is_eligible_to_get_certificate(self, student: User) -> bool:

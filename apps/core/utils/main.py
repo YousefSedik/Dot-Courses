@@ -2,6 +2,11 @@ import datetime
 import os
 from pymediainfo import MediaInfo
 from django import conf
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model() 
+
 
 def get_duration(filename):
     media_info = MediaInfo.parse(filename)
