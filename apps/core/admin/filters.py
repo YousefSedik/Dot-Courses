@@ -14,7 +14,8 @@ class CourseBaseFilter(SimpleListFilter):
         return data
 
     def queryset(self, request, queryset, filterDict={}):
-        queryset = queryset.filter(**filterDict)
+        if filterDict and list(filterDict.values())[0] is not None:
+            queryset = queryset.filter(**filterDict)
         return queryset
 
 class VideosBaseFilter(SimpleListFilter):
@@ -33,7 +34,8 @@ class VideosBaseFilter(SimpleListFilter):
         return data
 
     def queryset(self, request, queryset, filterDict={}):
-        queryset = queryset.filter(**filterDict)
+        if filterDict and list(filterDict.values())[0] is not None:
+            queryset = queryset.filter(**filterDict)
         return queryset
 
 class QuestionBaseFilter(SimpleListFilter):
@@ -53,7 +55,8 @@ class QuestionBaseFilter(SimpleListFilter):
         return data
 
     def queryset(self, request, queryset, filterDict={}):
-        queryset = queryset.filter(**filterDict)
+        if filterDict and list(filterDict.values())[0] is not None:
+            queryset = queryset.filter(**filterDict)
         return queryset
 
 class CertificateCourseFilter(CourseBaseFilter):
