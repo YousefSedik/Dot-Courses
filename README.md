@@ -64,6 +64,8 @@ EMAIL_HOST_PASSWORD=''
 EMAIL_HOST=""
 EMAIL_PORT=   
 EMAIL_USE_TLS=''
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
 ```
 
 Install the dependencies and devDependencies

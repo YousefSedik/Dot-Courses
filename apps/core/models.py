@@ -47,7 +47,7 @@ class Course(models.Model):
     def final_price(self):
         if self.discount is not None:
             return round(self.price * (100-self.discount)/100, 2)
-        return self.price
+        return self.price if self.price is not None else 0 
 
     def is_eligible_to_get_certificate(self, student: User) -> bool:
         grades = Grade.objects.filter(
