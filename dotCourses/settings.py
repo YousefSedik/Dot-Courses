@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+     'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # External Apps 
-    
+    # 'django.contrib.admin',
     "allauth_ui",
     'allauth',
     'allauth.account',
@@ -199,7 +200,6 @@ INTERNAL_IPS = [
     '127.0.0.1'
 ]
 
-from django.urls import reverse
 
 AUTH_USER_MODEL = 'users.CustomUser'
 LOGIN_REDIRECT_URL = '/clear-cart-cookies'

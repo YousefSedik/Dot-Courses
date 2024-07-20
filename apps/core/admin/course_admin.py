@@ -1,13 +1,18 @@
 from .base_admin import BaseAdmin 
-from ..models import Course
+from ..models import Course, Video
 from django.contrib import admin
+
+class VideoInline(admin.TabularInline):
+    model = Video
+    
+    
 
 @admin.register(Course)
 class CourseAdmin(BaseAdmin):
     fields = ['name', 'slug', 'description', 'price', \
         'discount', 'thumbnail', 'category', 'duration','enrolled_counter',]
     readonly_fields = ['enrolled_counter', 'duration', 'slug']
-    
+    inlines = [VideoInline]
     
     def get_readonly_fields(self, request, obj=None):
         if obj:

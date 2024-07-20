@@ -26,7 +26,8 @@ class Course(models.Model):
     name = models.CharField(max_length=120)
     slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
-    price = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    price = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, 
+                                verbose_name="Price (leave empty if it's free)")
     discount = models.IntegerField(null=True, blank=True)
     thumbnail = models.ImageField(
         null=True, default="default.jpeg/", upload_to="thumbnail/"
