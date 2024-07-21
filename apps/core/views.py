@@ -1,12 +1,11 @@
-from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
-from django.http.response import HttpResponseRedirect, HttpResponse
-from django.views.generic import ListView, View, DetailView, RedirectView
+from .models import Course, Cart, Video, Question, Grade, Purchase, Rate, Certificate
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView, View, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import F
+from django.http.response import HttpResponseRedirect
+from django.http import FileResponse, Http404
+from django.db.models import Exists, OuterRef, Q
 from django.urls import reverse_lazy
-from .models import *
-from .utils import main
-from django.db.models import Exists, OuterRef, Subquery, Count
 
 # Create your views here.
 
@@ -15,6 +14,7 @@ class HomeView(ListView):
     model = Course
     template_name = "core/home.html"
     context_object_name = "courses"
+    paginate_by = 6
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -27,9 +27,6 @@ class HomeView(ListView):
                 )
             )
         return queryset
-
-
-from django.db.models import Sum
 
 
 class CartView(ListView):
@@ -149,8 +146,11 @@ class VideoView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         course_slug = self.kwargs["course_slug"]
         queryset = (
-            super(VideoView, self).get_queryset().filter(course__slug=course_slug).\
-                prefetch_related('question_set').all()
+            super(VideoView, self)
+            .get_queryset()
+            .filter(course__slug=course_slug)
+            .prefetch_related("question_set")
+            .all()
         )
         return queryset
 
@@ -160,7 +160,6 @@ class VideoView(LoginRequiredMixin, ListView):
         context["video"] = Video.objects.filter(
             course__slug=course_slug, counter=video_no
         ).first()
-        video_duration = context["video"].video
         context["course"] = Course.objects.get(slug=course_slug)
         has_certificate = Certificate.objects.filter(
             student=self.request.user, course=context["course"]
@@ -171,7 +170,7 @@ class VideoView(LoginRequiredMixin, ListView):
             context["is_eligible_to_get_certificate"] = context[
                 "course"
             ].is_eligible_to_get_certificate(self.request.user)
-        
+
         return context
 
 
@@ -191,7 +190,11 @@ class TestCourseView(LoginRequiredMixin, ListView):
         return super(TestCourseView, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):  # primary data
-        queryset = Question.objects.filter(video_id=self.kwargs["video_id"]).prefetch_related('choice_set').all()
+        queryset = (
+            Question.objects.filter(video_id=self.kwargs["video_id"])
+            .prefetch_related("choice_set")
+            .all()
+        )
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -202,7 +205,7 @@ class TestCourseView(LoginRequiredMixin, ListView):
         )
         context["grade"] = grades.last()
         context["passed"] = grades.filter(passed=True).exists()
-        if context['passed']:
+        if context["passed"]:
             # Check if there is next video: Exam->video->counter + 1 available?
             video_counter = Video.objects.get(pk=self.kwargs["video_id"]).counter + 1
 
@@ -211,15 +214,15 @@ class TestCourseView(LoginRequiredMixin, ListView):
             )
 
             if not next_video.exists():
-                 video_counter -= 1
-                
+                video_counter -= 1
+
             context["next_video"] = reverse_lazy(
-                    "core:ViewCourse",
-                    kwargs={
-                        "course_slug": self.kwargs["course_slug"],
-                        "video_no": video_counter,
-                    },
-                )
+                "core:ViewCourse",
+                kwargs={
+                    "course_slug": self.kwargs["course_slug"],
+                    "video_no": video_counter,
+                },
+            )
 
         return context
 
@@ -235,7 +238,9 @@ class MyCoursesView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class SearchView(View):
+class SearchView(ListView):
+    paginate_by = 6
+
     def get(self, request, *args, **kwargs):
         q = request.GET.get("q")
         context = {}
@@ -253,10 +258,6 @@ class SearchView(View):
                 )
             )
         return render(request, "core/components/viewCourse.html", context)
-
-
-import os
-from django.http import FileResponse, Http404
 
 
 def certificate_view(request, key):

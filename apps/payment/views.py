@@ -17,31 +17,30 @@ def create_checkout_session(request):
         in_cart = Cart.objects.filter(student=request.user).select_related('course')
         user_id = request.user.id
         line_items = [
-            {'price_data': {
-                'currency': 'egp',
-                'product_data': {'name': cart_obj.course.name},
-                'unit_amount': int(cart_obj.course.final_price)*100,
-            },
+            {
+                'price_data': {
+                    'currency': 'egp',
+                    'product_data': {'name': cart_obj.course.name},
+                    'unit_amount': int(cart_obj.course.final_price) * 100,
+                },
                 'quantity': 1,
             }
             for cart_obj in in_cart
         ]
         in_cart = in_cart.values('course_id')
-        courses_ids = [str(obj['course_id']) for obj in in_cart]
+        course_ids = [str(obj['course_id']) for obj in in_cart]
         
         checkout_session = stripe.checkout.Session.create(
             customer_email=request.user.email,
             payment_method_types=['card'],
             line_items=line_items,
             client_reference_id=user_id,
-            metadata={
-                    'courses_ids': ','.join(courses_ids)
-                },
+            metadata={'courses_ids': ','.join(course_ids)},
             mode='payment',
             success_url=request.build_absolute_uri('/') + reverse('payment:payment_success') + '?success=true&session_id={CHECKOUT_SESSION_ID}',
             cancel_url=request.build_absolute_uri('/') + '?canceled=true',
-            
         )
+        print(checkout_session.__dict__)
         
         return redirect(checkout_session.url, code=303)
     except Exception as e:
@@ -53,21 +52,26 @@ def payment_success(request):
     status = checkout_session.get('payment_status')
 
     if status == 'paid':
-        # Get User
-        user_id = int(checkout_session.client_reference_id)
-        student = User.objects.get(id=user_id)
-        # Get Courses IDs
-        course_ids = list(map(int, checkout_session.metadata.get('courses_ids').split(','))) # To Int Missing
-        # Remove From Cart
-        Cart.objects.filter(student=student).delete()
-        # Create Purchase
-        for course_id in course_ids:
-            course = Course.objects.get(id=course_id)
-            Purchase.objects.create(student=student, course=course)
-        # Send Email 
-        OrderCompletedMail(course_ids=course_ids, student=student).send()
+        try:
+            # Get User
+            user_id = int(checkout_session.client_reference_id)
+            student = User.objects.get(id=user_id)
+            # Get Courses IDs
+            course_ids = list(map(int, checkout_session.metadata.get('courses_ids').split(','))) # To Int Missing
+            if Purchase.create_from_cart(student=student, course_ids=course_ids):
+
+                OrderCompletedMail(course_ids=course_ids, student=student).send()
+            else:
+                return JsonResponse({'error': 'Something went wrong'})
+        except Exception as e:
+            
+            stripe.Refund.create(
+                # charge=session_id,
+            )
+            return JsonResponse({'error': str(e)})
     # Redirect 
     return redirect(reverse_lazy('core:MyCourses'))
 
 def payment_failed(request):
-    pass    
+    # Handle payment failure if needed
+    return render(request, 'payment_failed.html')

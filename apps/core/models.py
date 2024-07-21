@@ -1,8 +1,18 @@
 from django.db import models
 from datetime import timedelta
-from random import randint 
+from random import randint
 from django.template.defaultfilters import slugify
 from django.contrib.auth import get_user_model
+from django.db import transaction
+from django.dispatch import receiver
+from django.db.models.signals import post_save, post_delete, pre_save
+import secrets
+import string
+from .utils import main
+
+alphabet = string.ascii_letters + string.digits
+key_length = 10
+
 User = get_user_model()
 
 
@@ -46,8 +56,8 @@ class Course(models.Model):
     @property
     def final_price(self):
         if self.discount is not None:
-            return round(self.price * (100-self.discount)/100, 2)
-        return self.price if self.price is not None else 0 
+            return round(self.price * (100 - self.discount) / 100, 2)
+        return self.price if self.price is not None else 0
 
     def is_eligible_to_get_certificate(self, student: User) -> bool:
         grades = Grade.objects.filter(
@@ -72,12 +82,12 @@ class Course(models.Model):
     def super_slugify(self, course_name=None):
         if course_name is None:
             course_name = self.name
-        course_name = slugify(course_name) 
+        course_name = slugify(course_name)
         if not Course.objects.filter(slug=course_name).exists():
             return course_name
         else:
-            return self.super_slugify(course_name + str(randint(0,9)))
-        
+            return self.super_slugify(course_name + str(randint(0, 9)))
+
     def __str__(self):
         return f"{self.slug}"
 
@@ -93,14 +103,18 @@ class Video(models.Model):
         unique_together = [["course", "counter"]]
 
     def __str__(self):
-        return f"{self.name} is for {self.course.slug} course"    
+        return f"{self.name} is for {self.course.slug} course"
 
 
 class Question(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
     question = models.CharField(max_length=200)
     right_answer = models.ForeignKey(
-        "Choice", on_delete=models.SET_NULL, related_name="answer", null=True, blank=True
+        "Choice",
+        on_delete=models.SET_NULL,
+        related_name="answer",
+        null=True,
+        blank=True,
     )
 
     def __str__(self):
@@ -113,15 +127,6 @@ class Choice(models.Model):
 
     def __str__(self):
         return self.choice
-
-
-import secrets
-import string
-
-alphabet = string.ascii_letters + string.digits
-key_length = 10
-from .utils import main
-import os
 
 
 class Certificate(models.Model):
@@ -164,6 +169,23 @@ class Purchase(models.Model):
     class Meta:
         unique_together = [["student", "course"]]
 
+    @classmethod
+    def create_from_cart(cls, student, course_ids):
+        try:
+            with transaction.atomic():
+                purchase_objs = [
+                    cls(student=student, course_id=course_id)
+                    for course_id in course_ids
+                ]
+                cls.objects.bulk_create(purchase_objs)
+                # clear the cart
+                Cart.objects.filter(student=student).delete()
+                raise Exception("Transaction failed")
+                return True
+        except Exception as e:
+            print("Transaction failed and rolled back: ", e)
+            return False
+
     def __str__(self):
         return f"{self.student} have bought this course {self.course}"
 
@@ -189,13 +211,13 @@ class Grade(models.Model):
     def __str__(self):
         return f"{self.student.full_name}, passed: {self.passed}, on {self.video}"
 
+
 class InstructorRequest(models.Model):
     user = models.ForeignKey(User, verbose_name="User", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
 # Signals
-from django.dispatch import receiver
-from django.db.models.signals import post_save, post_delete, pre_save
 
 
 @receiver(post_save, sender=Purchase)
@@ -213,7 +235,6 @@ def decrement_enrolled_counter(instance, *args, **kwargs):
 
 @receiver(pre_save, sender=Rate)
 def add_or_update_rating(sender, instance, *args, **kwargs):
-
     course_obj = instance.course
     if not instance.pk:  # new
         course_obj.rating_sum += int(instance.rate)
@@ -222,11 +243,8 @@ def add_or_update_rating(sender, instance, *args, **kwargs):
         original_instance = sender.objects.get(pk=instance.pk)
         course_obj.rating_sum -= int(original_instance.rate)
         course_obj.rating_sum += int(instance.rate)
-    
+
     course_obj.save()
-
-
-from .utils import main
 
 
 # Signal To Add the duration
@@ -246,6 +264,7 @@ def remove_duration_signal(instance, *args, **kwargs):
     course_obj = instance.course
     course_obj.duration -= video_time
     course_obj.save()
+
 
 @receiver(pre_save, sender=Purchase)
 def delete_obj_from_cart(instance, *args, **kwargs):
