@@ -10,7 +10,8 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # 3: update kernel + install dependencies
 RUN apt-get update && \
-    apt-get install -y gcc libpq-dev
+    apt-get install -y gcc libpq-dev && \
+    apt-get install libreoffice -y
 
 # 4: create project folder: kernel
 WORKDIR /app

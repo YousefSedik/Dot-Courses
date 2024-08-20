@@ -182,7 +182,6 @@ class Purchase(models.Model):
                 cls.objects.bulk_create(purchase_objs)
                 # clear the cart
                 Cart.objects.filter(student=student).delete()
-                raise Exception("Transaction failed")
                 return True
         except Exception as e:
             print("Transaction failed and rolled back: ", e)

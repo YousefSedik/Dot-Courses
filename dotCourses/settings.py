@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "widget_tweaks",
+    "slippers",
     "debug_toolbar",
     "django_htmx",
     "django_extensions",
@@ -58,6 +59,8 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.payment",
 ]
+
+ALLAUTH_UI_THEME = "light"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -189,7 +192,6 @@ ACCOUNT_FORMS = {"signup": "apps.users.forms.MyCustomSignupForm"}
 
 INTERNAL_IPS = ["127.0.0.1"]
 
-from django.urls import reverse
 
 AUTH_USER_MODEL = "users.CustomUser"
 LOGIN_REDIRECT_URL = "/clear-cart-cookies"

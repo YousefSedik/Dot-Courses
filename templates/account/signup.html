@@ -1,12 +1,20 @@
-{% extends "account/base.html" %}
-
-{% block head_title %}Sign up{% endblock %}
-
-{% block whitebox %}
-<h1 class="mb-5 text-3xl text-center">Sign up</h1>
-<form id="signup_form" method="post" action="{% url 'account_signup' %}" novalidate>
-  {% include "account/_render_form.html" %}
-  {% include "account/_button.html" with text="Sign up" %}
-</form>
-<a class="self-center pt-8 text-xs text-blue-400 justify-self-center hover:text-blue-500" href="{{ login_url }}">Already have an account? Sign in.</a>
+{% extends "account/signup.html" %}
+{% load i18n %}
+{% load allauth_ui %}
+{% load widget_tweaks %}
+{% block content %}
+    {% trans "Sign Up" as heading %}
+    {% blocktranslate asvar subheading %}Already have an account? Then please <a href="{{ login_url }}" class="link">sign in</a>.{% endblocktranslate %}
+    {% #container heading=heading subheading=subheading  %}
+    {% if not SOCIALACCOUNT_ONLY %}
+        {% url 'account_signup' as action_url %}
+        {% #form form=form url=action_url button_text=heading %}
+        {{ redirect_field }}
+        {% csrf_token %}
+        {% /form %}
+    {% endif %}
+    {% if SOCIALACCOUNT_ENABLED %}
+        {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+    {% endif %}
+    {% /container %}
 {% endblock %}

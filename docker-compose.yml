@@ -2,8 +2,8 @@
 version: '3'
 
 services:
-  djangoserver:
-    container_name: server
+  dot-djangoserver:
+    container_name: dot-djangoserver
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     ports:

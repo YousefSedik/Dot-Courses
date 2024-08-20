@@ -1,27 +1,23 @@
-{% extends "account/base_entrance.html" %}
-{% load allauth %}
+{% extends "account/base_reauthenticate.html" %}
 {% load i18n %}
-{% block head_title %}
-    {% trans "Confirm Access" %}
-{% endblock head_title %}
+{% load allauth_ui %}
 {% block content %}
-    {% element h1 %}
-        {% trans "Confirm Access" %}
-    {% endelement %}
-    <p>{% blocktranslate %}Please reauthenticate to safeguard your account.{% endblocktranslate %}</p>
+    {% trans "Confirm Access" as heading %}
+    {% blocktranslate asvar subheading %}
+    Please reauthenticate to safeguard your account.
+    {% endblocktranslate %}
+    {% #container heading=heading subheading=subheading %}
     {% block reauthenticate_content %}{% endblock %}
     {% if reauthentication_alternatives %}
-        {% element hr %}
-        {% endelement %}
-        {% element h2 %}
-            {% translate "Alternative options" %}
-        {% endelement %}
+        <div class="divider divider-neutral"></div>
+        <h2 class="text-lg my-3">{% translate "Alternative options" %}</h2>
         <ul>
             {% for alt in reauthentication_alternatives %}
                 <li>
-                    <a href="{{ alt.url }}">{{ alt.description }}</a>
+                    <a class="link" href="{{ alt.url }}">{{ alt.description }}</a>
                 </li>
             {% endfor %}
         </ul>
     {% endif %}
+    {% /container %}
 {% endblock content %}
