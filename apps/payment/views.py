@@ -47,7 +47,7 @@ def create_checkout_session(request):
 
         return redirect(checkout_session.url, code=303)
     except Exception as e:
-        return JsonResponse({"error": str(e)})
+        return redirect("core:home")
 
 
 def payment_success(request):
@@ -82,3 +82,24 @@ def payment_success(request):
 def payment_failed(request):
     # Handle payment failure if needed
     return render(request, "payment_failed.html")
+
+
+# import stripe
+
+# @login_required
+# def create_subscription(request):
+
+#     # Assume customer and plan IDs are obtained from the request
+
+#     subscription = stripe.Subscription.create(
+#         customer=request.user.id,
+#         items=[{"plan": plan_id}],
+#     )
+
+#     # Save the subscription details in your database
+
+#     Subscription.objects.create(
+#         user=request.user, stripe_subscription_id=subscription.id, active=True
+#     )
+
+#     return HttpResponse("Subscription successful")

@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete, pre_save
 import secrets
 import string
+from django.core.validators import MaxValueValidator, MinValueValidator
 from .utils import main
 
 alphabet = string.ascii_letters + string.digits
@@ -39,7 +40,9 @@ class Course(models.Model):
     price = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, blank=True, default=0
     )
-    discount = models.IntegerField(null=True, blank=True)
+    discount = models.IntegerField(
+        null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
     thumbnail = models.ImageField(
         null=True, default="default.jpeg/", upload_to="thumbnail/"
     )

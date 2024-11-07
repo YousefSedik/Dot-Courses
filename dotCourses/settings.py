@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # External Apps
-    "allauth_ui",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -60,7 +59,6 @@ INSTALLED_APPS = [
     "apps.payment",
 ]
 
-ALLAUTH_UI_THEME = "light"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

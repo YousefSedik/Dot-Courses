@@ -5,6 +5,9 @@
       <a class="navbar-brand" href="{% url 'core:home' %}">
         <img src="{% static 'dot/logo-color-removebg-prevdddddiew.png' %} " width="80" height="40" alt="logo">
       </a>
+      {% if user.is_staff %}
+      <a class="btn btn-outline-primary"" href=" {% url 'admin:index' %}"> Admin Page </a>
+      {% endif %}
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>

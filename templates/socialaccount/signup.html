@@ -1,20 +1,29 @@
-{% extends "socialaccount/signup.html" %}
+{% extends "socialaccount/base_entrance.html" %}
 {% load i18n %}
-{% load allauth_ui %}
 {% load allauth %}
+{% block head_title %}
+    {% trans "Signup" %}
+{% endblock head_title %}
 {% block content %}
-    {% trans "Sign Up" as heading %}
-    {% blocktrans asvar subheading with provider_name=account.get_provider.name site_name=site.name %}
-	    You are about to use your {{provider_name}} account to login to {{site_name}}.
-	    As a final step, please complete the following form:
-    {% endblocktrans %}
-    {% #container heading=heading subheading=subheading %}
-    {% trans "Continue" as button_text %}
-    {% url "socialaccount_signup" as url %}
-    {% trans "Sign Up" as button_text %}
-    {% #form form=form url=url button_text=button_text %}
-    {% csrf_token %}
-    {{ redirect_field }}
-    {% /form %}
-    {% /container %}
+    {% element h1 %}
+        {% trans "Sign Up" %}
+    {% endelement %}
+    {% element p %}
+        {% blocktrans with provider_name=account.get_provider.name site_name=site.name %}You are about to use your {{provider_name}} account to login to
+{{site_name}}. As a final step, please complete the following form:{% endblocktrans %}
+    {% endelement %}
+    {% url 'socialaccount_signup' as action_url %}
+    {% element form form=form method="post" action=action_url %}
+        {% slot body %}
+            {% csrf_token %}
+            {% element fields form=form unlabeled=True %}
+            {% endelement %}
+            {{ redirect_field }}
+        {% endslot %}
+        {% slot actions %}
+            {% element button type="submit" %}
+                {% trans "Sign Up" %}
+            {% endelement %}
+        {% endslot %}
+    {% endelement %}
 {% endblock content %}

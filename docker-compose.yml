@@ -21,6 +21,5 @@ services:
     container_name: celery
     build: .
     command: celery -A dotCourses worker -l INFO 
-    restart: always 
     depends_on:
       - redis
