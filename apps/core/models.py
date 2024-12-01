@@ -137,7 +137,7 @@ class Choice(models.Model):
 class Certificate(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    key = models.SlugField(null=False)
+    key = models.SlugField(null=False, unique=True)
     certificate_pdf = models.FileField(upload_to="certificates/", null=True)
 
     def __str__(self):
