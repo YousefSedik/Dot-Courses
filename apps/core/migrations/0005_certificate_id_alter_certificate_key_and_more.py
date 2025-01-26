@@ -12,11 +12,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL(
+            sql='ALTER TABLE core_certificate DROP CONSTRAINT core_certificate_pkey;',
+            reverse_sql='ALTER TABLE core_certificate ADD CONSTRAINT core_certificate_pkey PRIMARY KEY (key);',
+        ),
         migrations.AddField(
             model_name='certificate',
             name='id',
-            field=models.BigAutoField(auto_created=True, default=1, primary_key=True, serialize=False, verbose_name='ID'),
-            preserve_default=False,
+            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
         ),
         migrations.AlterField(
             model_name='certificate',
@@ -28,11 +31,15 @@ class Migration(migrations.Migration):
             unique_together={('student', 'course')},
         ),
         migrations.AlterUniqueTogether(
-            name='purchase',
-            unique_together={('student', 'course')},
+            name="certificate",
+            unique_together={("student", "course")},
         ),
         migrations.AlterUniqueTogether(
-            name='rate',
-            unique_together={('student', 'course')},
+            name="purchase",
+            unique_together={("student", "course")},
+        ),
+        migrations.AlterUniqueTogether(
+            name="rate",
+            unique_together={("student", "course")},
         ),
     ]
