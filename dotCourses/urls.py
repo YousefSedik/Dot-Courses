@@ -26,8 +26,8 @@ urlpatterns = [
     path("", include("apps.users.urls")),
     path("", include("apps.payment.urls")),
     path("accounts/", include("allauth.urls")),
+    path("accounts/", include("allauth.socialaccount.urls")),
     path("__debug__/", include("debug_toolbar.urls")),
-    
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

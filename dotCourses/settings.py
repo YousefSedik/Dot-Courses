@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "widget_tweaks",
     "slippers",
     "debug_toolbar",
@@ -201,3 +202,25 @@ LOGIN_REDIRECT_URL = "/clear-cart-cookies"
 
 CELERY_RESULT_BACKEND = "redis://redis:6379"
 CELERY_BROKER_URL = "redis://redis:6379"
+
+# Allauth Social Account
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+            "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+            "key": "",
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    }
+}
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+

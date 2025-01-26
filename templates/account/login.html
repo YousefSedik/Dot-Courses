@@ -1,4 +1,5 @@
 {% load static %}
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 
@@ -47,7 +48,8 @@
             <div class="input-box button">
                 <input type="submit" value="Login">
             </div>
-            
+            <!-- google login -->
+            <a href="{% provider_login_url 'google' %}">Sign up with Google</a>
             <div class="text">
                 <h3>Forgotten your password? <a href="{% url 'account_reset_password' %}">Reset Password</a></h3>
             </div>

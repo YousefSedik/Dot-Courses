@@ -101,7 +101,7 @@ class Video(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     video = models.FileField(upload_to="videos/")
     name = models.CharField(max_length=200)
-    counter = models.SmallIntegerField(verbose_name="number of the video in the course")
+    counter = models.PositiveSmallIntegerField(verbose_name="number of the video in the course")
 
     class Meta:
         ordering = ["counter"]

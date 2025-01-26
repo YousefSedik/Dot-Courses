@@ -9,10 +9,13 @@ User = get_user_model()
 
 
 def get_duration(filename):
-    media_info = MediaInfo.parse(filename)
-    duration_in_ms = media_info.tracks[0].duration
-    video_time = datetime.timedelta(seconds=int(duration_in_ms / 1000))
-    return video_time
+    try:
+        media_info = MediaInfo.parse(filename)
+        duration_in_ms = media_info.tracks[0].duration
+        video_time = datetime.timedelta(seconds=int(duration_in_ms / 1000))
+        return video_time
+    except Exception:
+        return datetime.timedelta(seconds=0)
 
 
 class CertificatePDF:
@@ -42,7 +45,7 @@ class CertificatePDF:
             "<KEY>": self.key,
             "<COURSE-NAME>": self.course_name,
         }
-
+        print(replacements)
         if not os.path.exists(self.certificates_folder_path):
             os.makedirs(self.certificates_folder_path)
 
