@@ -1,7 +1,9 @@
 {% extends 'core/main.html' %}
+
 {% block title %}
 {{ course.name }}
 {% endblock title %}
+
 {% block content %}
 <style>
   .video-container {
@@ -10,8 +12,10 @@
     /* 16:9 aspect ratio */
     height: 0;
     overflow: hidden;
-    max-width: 100%;
     background: #000;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
   }
 
   .video-container video {
@@ -20,29 +24,38 @@
     left: 0;
     width: 100%;
     height: 100%;
+    border-radius: 10px;
   }
 
-  .course-content-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-  }
-
-  .offcanvas-header {
+  .course-content {
     background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 100%;
   }
 
-  .offcanvas-body {
-    padding: 0;
+  .course-content-header {
+    background-color: #007bff;
+    color: #fff;
+    padding: 15px;
+    border-radius: 10px 10px 0 0;
+    font-weight: bold;
+  }
+
+  .course-content-body {
+    padding: 15px;
+    max-height: 70vh;
+    overflow-y: auto;
   }
 
   .list-group-item {
     border: none;
     border-bottom: 1px solid #dee2e6;
-    padding: 12px 20px;
+    padding: 12px 15px;
     color: #333;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
+    margin-bottom: 5px;
   }
 
   .list-group-item.active {
@@ -52,49 +65,47 @@
   }
 
   .list-group-item:hover {
-    background-color: #f8f9fa;
+    background-color: #e9ecef;
   }
 
   .certificate-section {
     background-color: burlywood;
     color: #333;
     font-weight: bold;
+    transition: background-color 0.3s ease;
   }
 
   .certificate-section:hover {
     background-color: #d2a679;
   }
+
+  .container-fluid {
+    padding: 20px;
+  }
 </style>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-  integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+  integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous"> -->
 
 <div class="container-fluid">
   <div class="row">
-    <!-- Right section - 75% width -->
+    <!-- Video section - 75% width -->
     <div class="col-md-9">
       <div class="video-container">
         <video class="video" src="{{ video.video.url }}" controls controlsList="nodownload"></video>
       </div>
     </div>
-    <!-- Left section - 25% width -->
+    <!-- Course content section - 25% width -->
     <div class="col-md-3">
-      <!-- Course Content Button -->
-      <button class="btn btn-primary course-content-btn" type="button" data-bs-toggle="offcanvas"
-        data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Course Content</button>
-
-      <!-- Offcanvas for Course Content -->
-      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-        <div class="offcanvas-header">
-          <h5 id="offcanvasRightLabel">Course Content</h5>
-          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      <div class="course-content">
+        <div class="course-content-header">
+          Course Content
         </div>
-        <div class="offcanvas-body">
-          <ul class="list-group">
+        <div class="course-content-body">
+          <div class="list-group">
             {% for video_obj in course_content %}
-            <a href="{% url 'core:ViewCourse' course_slug=course.slug video_no=video_obj.counter %}" class="list-group-item list-group-item-action 
-                      {% if video.counter == video_obj.counter %}
-                      active 
-                      {% endif %}" aria-current="true">
+            <a href="{% url 'core:ViewCourse' course_slug=course.slug video_no=video_obj.counter %}"
+              class="list-group-item list-group-item-action {% if video.counter == video_obj.counter %}active{% endif %}">
               {{ video_obj.name }}
             </a>
 
@@ -119,12 +130,14 @@
               </button>
             </form>
             {% endif %}
-          </ul>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-  integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script> -->
+
 {% endblock %}

@@ -238,28 +238,6 @@ class MyCoursesView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class SearchView(ListView):
-    paginate_by = 6
-
-    def get(self, request, *args, **kwargs):
-        q = request.GET.get("q")
-        context = {}
-        context["courses"] = Course.objects.filter(
-            Q(description__contains=q)
-            | Q(name__contains=q)
-            | Q(instructor__full_name__contains=q)
-        )
-        if self.request.user.is_authenticated:
-            context["courses"] = context["courses"].annotate(
-                is_owned=Exists(
-                    Purchase.objects.filter(
-                        student=self.request.user, course=OuterRef("pk")
-                    )
-                )
-            )
-        return render(request, "core/components/viewCourse.html", context)
-
-
 def certificate_view(request, key):
 
     pdf_url = get_object_or_404(Certificate, key=key).certificate_pdf.path
@@ -267,3 +245,14 @@ def certificate_view(request, key):
         return FileResponse(open(pdf_url, "rb"), content_type="application/pdf")
     except FileNotFoundError:
         raise Http404()
+
+
+class CertificatedListView(ListView):
+    model = Certificate
+    template_name = "core/certificates.html"
+    context_object_name = "certificates"
+
+    def get_queryset(self):
+        queryset = super(CertificatedListView, self).get_queryset()
+        queryset = queryset.filter(student=self.request.user).select_related("course")
+        return queryset

@@ -52,6 +52,9 @@ class Course(models.Model):
     rating_sum = models.IntegerField(default=0)
     rating_added_counter = models.IntegerField(default=0)
 
+    def get_absolute_url(self):
+        return f"/course/{self.slug}"
+
     @property
     def rate(self):
         if self.rating_added_counter:
@@ -139,7 +142,7 @@ class Certificate(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     key = models.SlugField(null=False, unique=True)
     certificate_pdf = models.FileField(upload_to="certificates/", null=True)
-
+    create_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return f"{self.student} have a certificate in this course {self.course}"
 
@@ -149,7 +152,10 @@ class Certificate(models.Model):
             if not Certificate.objects.filter(key=random_key).exists():
                 self.key = random_key
                 break
-
+    
+    def get_absolute_url(self):
+        return f"/certificate/{self.key}"
+    
     def save(self, *args, **kwargs):
         if not self.key:
             self.generate_key()
@@ -220,15 +226,30 @@ class InstructorRequest(models.Model):
     user = models.ForeignKey(User, verbose_name="User", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
+class UserCourseProgress(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    watched = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"{self.student} watched {self.video} video"
+
 
 # Signals
-
 
 @receiver(post_save, sender=Purchase)
 def increment_enrolled_counter(instance, created, *args, **kwargs):
     if created:
         instance.course.enrolled_counter += 1
         instance.course.save()
+        # create UserCourseProgress objects
+        videos = Video.objects.filter(course=instance.course)
+        user_progress_objs = [
+            UserCourseProgress(student=instance.student, video=video)
+            for video in videos
+        ]
+        UserCourseProgress.objects.bulk_create(user_progress_objs)
+        
 
 
 @receiver(post_delete, sender=Purchase)

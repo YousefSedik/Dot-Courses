@@ -1,5 +1,4 @@
 <div class="container py-5">
-  <h2 class="text-center fw-bold mb-4">Available Courses</h2>
 
   <div class="row g-4" id="all-courses">
     {% for course in courses %}
@@ -20,7 +19,7 @@
             {% if course.id in in_cart %}
             <a href="{% url 'core:Cart' %}" class="btn btn-success w-100 mt-2">Checkout</a>
             {% elif course.is_owned %}
-            <span class="badge bg-success w-100 mt-2">Owned</span>
+            <span class="badge bg-success w-100 mt-2">Purchased</span>
             {% else %}
             <button onclick="increment_cart()" id="course-add-to-cart-{{course.id}}" class="btn btn-primary w-100 mt-2"
               hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="outerHTML"

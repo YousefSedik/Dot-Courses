@@ -15,16 +15,31 @@ AJAX_urlpatterns = [
 ]
 
 main_urlpatterns = [
-
-    path('', views.HomeView.as_view(), name='home'),
-    path('cart/', views.CartView.as_view(), name='Cart'),
-    path('course/<slug:course_slug>', views.AboutCourseView.as_view(), name='about_course'),
-    path('clear-cart-cookies/', views.ClearCartCookiesView.as_view(), name='ClearCartCookies'),
-    path('course/<slug:course_slug>/<int:video_no>/watch', views.VideoView.as_view(), name='ViewCourse'),
-    path('course/<slug:course_slug>/<int:video_id>/exam', views.TestCourseView.as_view(), name='TestCourse'),
-    path('my-courses', views.MyCoursesView.as_view(), name='MyCourses'),
-    path('certificate/<slug:key>', views.certificate_view, name='view-certificate'),
-
+    path("", views.HomeView.as_view(), name="home"),
+    path("cart/", views.CartView.as_view(), name="Cart"),
+    path(
+        "course/<slug:course_slug>",
+        views.AboutCourseView.as_view(),
+        name="about_course",
+    ),
+    path(
+        "clear-cart-cookies/",
+        views.ClearCartCookiesView.as_view(),
+        name="ClearCartCookies",
+    ),
+    path(
+        "course/<slug:course_slug>/<int:video_no>/watch",
+        views.VideoView.as_view(),
+        name="ViewCourse",
+    ),
+    path(
+        "course/<slug:course_slug>/<int:video_id>/exam",
+        views.TestCourseView.as_view(),
+        name="TestCourse",
+    ),
+    path("my-courses", views.MyCoursesView.as_view(), name="MyCourses"),
+    path("certificate/<slug:key>", views.certificate_view, name="view-certificate"),
+    path("certificates/", views.CertificatedListView.as_view(), name="Certificates"),
 ]
 
 urlpatterns = main_urlpatterns + AJAX_urlpatterns

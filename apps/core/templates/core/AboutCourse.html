@@ -43,7 +43,7 @@
                     <!-- Add to Cart Button -->
                     {% if not course.is_owned and course.id not in in_cart %}
                     <button class="btn btn-primary btn-lg w-100 mb-3" hx-post="{% url 'core:AddToCart' course.id %}"
-                        hx-swap="none" hx-indicator="#spinner-{{ course.id }}" hx-target="#cart-counter"
+                        hx-swap="none" hx-indicator="#spinner-{{ course.id }}" hx-target="#counter"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' onclick="increment_cart()"
                         id="add-to-cart-{{ course.id }}">
                         Add to Cart
@@ -153,7 +153,7 @@
 <script>
     function increment_cart() {
         // Update the cart counter
-        const cartCounter = document.getElementById('cart-counter');
+        const cartCounter = document.getElementById('counter');
         if (cartCounter) {
             const currentCount = parseInt(cartCounter.innerHTML);
             cartCounter.innerHTML = currentCount + 1;
