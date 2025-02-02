@@ -9,15 +9,27 @@ from .utils import main
 from django.db.models import Exists, OuterRef
 from django.db.models import Q
 from django.http import JsonResponse
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+
+
 class SearchView(View):
     def get(self, request, *args, **kwargs):
         q = request.GET.get("q")
         context = {}
-        context["courses"] = Course.objects.filter(
-            Q(description__contains=q)
-            | Q(name__contains=q)
-            | Q(instructor__full_name__contains=q)
+        search_vector = SearchVector(
+            "name",
+            "description",
+            "instructor__first_name",
+            "instructor__middle_name",
+            "instructor__last_name",
         )
+        search_query = SearchQuery(q)
+        context["courses"] = (
+            Course.objects.annotate(rank=SearchRank(search_vector, search_query))
+            .filter(rank__gte=0.3)
+            .order_by("-rank")
+        )
+
         if self.request.user.is_authenticated:
             context["courses"] = context["courses"].annotate(
                 is_owned=Exists(
@@ -94,16 +106,16 @@ class CorrectionView(LoginRequiredMixin, View):
                 course__slug=course_slug, counter=video_counter
             )
             if not next_video.exists():
-                 video_counter -= 1
-                
+                video_counter -= 1
+
             context["next_obj"] = reverse_lazy(
-                    "core:ViewCourse",
-                    kwargs={
-                        "course_slug": course_slug,
-                        "video_no": video_counter,
-                    },
-                )
-            
+                "core:ViewCourse",
+                kwargs={
+                    "course_slug": course_slug,
+                    "video_no": video_counter,
+                },
+            )
+
         else:
             obj.passed = False
             context["passed"] = False
@@ -179,6 +191,7 @@ class CreateCertificateView(LoginRequiredMixin, View):
         else:
             return HttpResponse("Unauthorized", status=401)
 
+
 class NavbarCartView(View):
     def get(self, request, *args, **kwargs):
         try:
@@ -202,8 +215,6 @@ class NavbarCartView(View):
                 }
                 for course in courses
             ]
-            print(courses_data)
             return JsonResponse({"courses": courses_data}, safe=False)
         except Exception as e:
-            print(e)
             return JsonResponse({"courses": []}, safe=False)
