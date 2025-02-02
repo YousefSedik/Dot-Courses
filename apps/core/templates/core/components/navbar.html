@@ -2,7 +2,7 @@
 <header class="sticky-top bg-white shadow-sm">
   <nav class="navbar navbar-expand-lg navbar-light container py-2">
     <a class="navbar-brand d-flex align-items-center" href="{% url 'core:home' %}">
-      <img src="{% static 'dot/logo-color-removebg-preview.png' %}" width="80" height="40" alt="logo">
+      <img src="{% static 'dot/logo-color-removebg-prevdddddiew.png' %}" width="80" height="40" alt="logo">
     </a>
 
     {% if user.is_staff %}
@@ -56,7 +56,7 @@
         </li>
 
         <li class="nav-item">
-          <a class="btn btn-outline-success btn-sm" href=""><i class="fas fa-certificate"></i> View Certificates</a>
+          <a class="btn btn-outline-success btn-sm" href="{% url 'core:Certificates' %}"><i class="fas fa-certificate"></i> View Certificates</a>
         </li>
         {% else %}
         <li class="nav-item">
@@ -84,7 +84,6 @@
 
     cartDropdown.addEventListener("mouseenter", function () {
       cartItems.innerHTML = "<li class='text-center text-muted'>Loading...</li>";
-
       fetch("{% url 'core:NavBarCart' %}")  // Replace with your actual cart API URL
         .then(response => response.json())
         .then(data => {
