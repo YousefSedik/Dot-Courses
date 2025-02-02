@@ -1,40 +1,54 @@
-{% extends "socialaccount/connections.html" %}
+{% extends "socialaccount/base_manage.html" %}
 {% load i18n %}
-{% load allauth_ui %}
-{% load widget_tweaks %}
+{% load allauth %}
+{% block head_title %}
+    {% trans "Account Connections" %}
+{% endblock head_title %}
 {% block content %}
-    {% trans "Account Connections" as heading %}
+    {% element h1 %}
+        {% trans "Account Connections" %}
+    {% endelement %}
     {% if form.accounts %}
-        {% blocktrans asvar subheading %}
-	    You can sign in to your account using any of the following third-party accounts:
-    	{% endblocktrans %}
-    {% else %}
-        {% trans "You currently have no third-party accounts connected to this account." as subheading %}
-    {% endif %}
-    {% #container heading=heading subheading=subheading %}
-    {% if form.accounts %}
+        {% element p %}
+            {% blocktrans %}You can sign in to your account using any of the following third-party accounts:{% endblocktrans %}
+        {% endelement %}
         {% url 'socialaccount_connections' as action_url %}
-        {% #form form=form url=action_url render_fields="false" use_default_button="false" %}
-        {% csrf_token %}
-        {% for acc in form.fields.account.choices %}
-            {% var account=acc.0.instance.get_provider_account %}
-            <div class="form-control">
-                <label class="cursor-pointer label border p-3 rounded">
-                    <span class="label-text">{{ account.get_brand.name }}</span>
-                    <input type="radio"
-                           id="id_account_{{ account.account.pk }}"
-                           name="account"
-                           value="{{ account.account.pk }}"
-                           class="radio checked:bg-primary"
-                           {% if radio.checked %}checked{% endif %} />
-                </label>
-            </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-warning my-3">{% trans "Remove" %}</button>
-        {% /form %}
+        {% element form form=form method="post" action=action_url %}
+            {% slot body %}
+                {% csrf_token %}
+                {% for acc in form.fields.account.choices %}
+                    {% with account=acc.0.instance.get_provider_account %}
+                        {% setvar radio_id %}
+                            id_account_{{ account.account.pk }}
+                        {% endsetvar %}
+                        {% setvar tags %}
+                            socialaccount,{{ account.account.provider }}
+                        {% endsetvar %}
+                        {% element field id=radio_id type="radio" name="account" value=account.account.pk %}
+                            {% slot label %}
+                                {{ account }}
+                                {% element badge tags=tags %}
+                                    {{ account.get_brand.name }}
+                                {% endelement %}
+                            {% endslot %}
+                        {% endelement %}
+                    {% endwith %}
+                {% endfor %}
+            {% endslot %}
+            {% slot actions %}
+                {% element button tags="delete,danger" type="submit" %}
+                    {% trans 'Remove' %}
+                {% endelement %}
+            {% endslot %}
+        {% endelement %}
+    {% else %}
+        {% element p %}
+            {% trans 'You currently have no third-party accounts connected to this account.' %}
+        {% endelement %}
     {% endif %}
-    <h2 class="py-3 text-lg">{% trans "Add a Third-Party Account" %}</h2>
+    {% element h2 %}
+        {% trans 'Add a Third-Party Account' %}
+    {% endelement %}
     {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
     {% include "socialaccount/snippets/login_extra.html" %}
-    {% /container %}
 {% endblock content %}

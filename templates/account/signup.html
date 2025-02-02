@@ -1,20 +1,44 @@
-{% extends "account/signup.html" %}
-{% load i18n %}
-{% load allauth_ui %}
-{% load widget_tweaks %}
-{% block content %}
-    {% trans "Sign Up" as heading %}
-    {% blocktranslate asvar subheading %}Already have an account? Then please <a href="{{ login_url }}" class="link">sign in</a>.{% endblocktranslate %}
-    {% #container heading=heading subheading=subheading  %}
-    {% if not SOCIALACCOUNT_ONLY %}
-        {% url 'account_signup' as action_url %}
-        {% #form form=form url=action_url button_text=heading %}
-        {{ redirect_field }}
-        {% csrf_token %}
-        {% /form %}
-    {% endif %}
-    {% if SOCIALACCOUNT_ENABLED %}
-        {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
-    {% endif %}
-    {% /container %}
-{% endblock %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Registration </title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+   </head>
+<body>
+  <div class="wrapper">
+    <h2>Registration</h2>
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="error">
+        {% for error in form.non_field_errors %}
+        <p style="color: red;">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% for field in form %}
+      {% if field.errors %}
+      <div class="error">
+        {% for error in field.errors %}
+        <p style="color: red;">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+        <div class="input-box">
+          <input type="{{field.field.widget.input_type}}" placeholder="Enter your {{ field.label }}" name="{{field.name}}" required>
+        </div>
+      {% endfor %}
+      <div class="input-box button">
+        <input type="submit" value="Register Now">
+      </div>
+      <div class="text">
+        <h3>Already have an account? <a href="{{ login_url }}">Login now</a></h3>
+      </div>
+    </form>
+  </div>
+
+</body>
+</html>

@@ -101,7 +101,7 @@ class AboutCourseView(DetailView):
         ).select_related()
         context["rates"] = Rate.objects.filter(
             course__slug=self.kwargs["course_slug"]
-        ).select_related("student")
+        ).select_related("student")[:10]
 
         if self.request.user.is_authenticated:
             context["rate"] = Rate.objects.filter(

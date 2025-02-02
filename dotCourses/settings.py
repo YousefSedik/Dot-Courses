@@ -44,10 +44,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # External Apps
-    "allauth_ui",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "widget_tweaks",
     "slippers",
     "debug_toolbar",
@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     "apps.payment",
 ]
 
-ALLAUTH_UI_THEME = "light"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -104,8 +103,12 @@ WSGI_APPLICATION = "dotCourses.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": env("DB_NAME"),
+        "USER": env("DB_USER"),
+        "PASSWORD": env("DB_PASSWORD"),
+        "HOST": env("DB_HOST"),
+        "PORT": env("DB_PORT"),
     }
 }
 
@@ -199,3 +202,25 @@ LOGIN_REDIRECT_URL = "/clear-cart-cookies"
 
 CELERY_RESULT_BACKEND = "redis://redis:6379"
 CELERY_BROKER_URL = "redis://redis:6379"
+
+# Allauth Social Account
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+            "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+            "key": "",
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    }
+}
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+

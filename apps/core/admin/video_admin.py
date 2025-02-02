@@ -11,6 +11,9 @@ class VideoAdmin(BaseAdmin):
     list_display = ['course', 'counter']
     list_filter = (VideoCourseFilter, )
     
+    class Media:
+        js = ("js/video_admin.js",)
+
     def get_readonly_fields(self, request, obj=None):
         if obj:
             return self.readonly_fields + ['video']
@@ -21,9 +24,9 @@ class VideoAdmin(BaseAdmin):
         user = request.user
         if user.is_instructor and user.is_staff and not user.is_superuser:
             qs = qs.filter(course__instructor=user)
-        
+
         return qs
-    
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "course":
             kwargs["queryset"] = Course.objects.filter(instructor=request.user)

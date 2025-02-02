@@ -1,9 +1,14 @@
-{% extends "socialaccount/authentication_error.html" %}
+{% extends "socialaccount/base_entrance.html" %}
 {% load i18n %}
-{% load allauth_ui %}
+{% load allauth %}
+{% block head_title %}
+    {% trans "Third-Party Login Failure" %}
+{% endblock head_title %}
 {% block content %}
-    {% trans "Third-Party Login Failure" as heading %}
-    {% trans "An error occurred while attempting to login via your third-party account." as subheading %}
-    {% #container heading=heading subheading=subheading %}
-    {% /container %}
+    {% element h1 %}
+        {% trans "Third-Party Login Failure" %}
+    {% endelement %}
+    {% element p %}
+        {% trans "An error occurred while attempting to login via your third-party account." %}
+    {% endelement %}
 {% endblock content %}

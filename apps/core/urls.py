@@ -10,6 +10,7 @@ AJAX_urlpatterns = [
     path('correction/<int:course_id>/<int:video_counter>', AJAX_views.CorrectionView.as_view(), name='Correction'),
     path('create-certificate/<slug:course_slug>', AJAX_views.CreateCertificateView.as_view(), name='cerate-certificate'),
     path('search', AJAX_views.SearchView.as_view(), name='search'),
+    path('nav-bar-cart', AJAX_views.NavbarCartView.as_view(), name='NavBarCart'),
 
 ]
 

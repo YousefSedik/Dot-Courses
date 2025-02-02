@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete, pre_save
 import secrets
 import string
+from django.core.validators import MaxValueValidator, MinValueValidator
 from .utils import main
 
 alphabet = string.ascii_letters + string.digits
@@ -39,7 +40,9 @@ class Course(models.Model):
     price = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, blank=True, default=0
     )
-    discount = models.IntegerField(null=True, blank=True)
+    discount = models.IntegerField(
+        null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
     thumbnail = models.ImageField(
         null=True, default="default.jpeg/", upload_to="thumbnail/"
     )
@@ -98,7 +101,7 @@ class Video(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     video = models.FileField(upload_to="videos/")
     name = models.CharField(max_length=200)
-    counter = models.SmallIntegerField(verbose_name="number of the video in the course")
+    counter = models.PositiveSmallIntegerField(verbose_name="number of the video in the course")
 
     class Meta:
         ordering = ["counter"]
@@ -134,7 +137,7 @@ class Choice(models.Model):
 class Certificate(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    key = models.SlugField(null=False)
+    key = models.SlugField(null=False, unique=True)
     certificate_pdf = models.FileField(upload_to="certificates/", null=True)
 
     def __str__(self):

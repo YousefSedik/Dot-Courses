@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='certificate',
             name='key',
-            field=models.CharField(default='test', max_length=10, primary_key=True, serialize=False),
+            field=models.CharField(max_length=10, primary_key=True, serialize=False),
             preserve_default=False,
         ),
         migrations.CreateModel(

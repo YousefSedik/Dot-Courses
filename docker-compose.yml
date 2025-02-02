@@ -10,6 +10,8 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+    
+    restart: always
 
 
   redis:
@@ -21,6 +23,29 @@ services:
     container_name: celery
     build: .
     command: celery -A dotCourses worker -l INFO 
-    restart: always 
     depends_on:
       - redis
+  
+  db:
+    image: postgres:latest
+    container_name: dotCourses_db_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dotCourses
+    ports:
+      - "5432:5432"
+
+  pgadmin_page:
+    image: dpage/pgadmin4
+    container_name: pgadmin_page
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pg@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin    
+    ports:
+      - "5050:80"                              
+    depends_on:
+      - db
+volumes:
+  postgres_data:

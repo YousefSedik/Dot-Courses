@@ -1,9 +1,14 @@
-{% extends "account/account_inactive.html" %}
+{% extends "allauth/layouts/entrance.html" %}
 {% load i18n %}
-{% load allauth_ui %}
+{% load allauth %}
+{% block head_title %}
+    {% translate "Account Inactive" %}
+{% endblock head_title %}
 {% block content %}
-    {% trans "Account Inactive" as heading %}
-    {% trans "This account is inactive." as subheading %}
-    {% #container heading=heading subheading=subheading %}
-    {% /container %}
+    {% element h1 %}
+        {% translate "Account Inactive" %}
+    {% endelement %}
+    {% element p %}
+        {% translate "This account is inactive." %}
+    {% endelement %}
 {% endblock content %}

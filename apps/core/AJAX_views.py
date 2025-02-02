@@ -8,8 +8,7 @@ from .models import *
 from .utils import main
 from django.db.models import Exists, OuterRef
 from django.db.models import Q
-
-
+from django.http import JsonResponse
 class SearchView(View):
     def get(self, request, *args, **kwargs):
         q = request.GET.get("q")
@@ -143,7 +142,7 @@ class AddToCartView(View):
 
     def post(self, request, *args, **kwargs):
         response = HttpResponse(
-            '<button href="{% url "payment:Checkout" %}" class="btn btn-primary"> Added To Cart.. Checkout </button> '
+            '<a href="{% url "core:Cart" %}" class="btn btn-success w-100 mt-2">Checkout</a>'
         )
         if not request.user.is_authenticated:
             cart_ids = request.COOKIES.get("cart", "")
@@ -179,3 +178,32 @@ class CreateCertificateView(LoginRequiredMixin, View):
 
         else:
             return HttpResponse("Unauthorized", status=401)
+
+class NavbarCartView(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            if request.user.is_authenticated:
+                cart = Cart.objects.filter(student=request.user).select_related(
+                    "course"
+                )
+                courses = [cart_item.course for cart_item in cart]
+            else:
+                cart_ids = request.COOKIES.get("cart", "")
+                list_of_cart_ids = list(map(int, cart_ids.split())) if cart_ids else []
+                courses = Course.objects.filter(id__in=list_of_cart_ids)
+
+            # Convert course objects to dictionaries and extract the image URL
+            courses_data = [
+                {
+                    "name": course.name,
+                    "price": int(course.price),
+                    "discount": course.discount,
+                    "thumbnail": course.thumbnail.url if course.thumbnail else None,
+                }
+                for course in courses
+            ]
+            print(courses_data)
+            return JsonResponse({"courses": courses_data}, safe=False)
+        except Exception as e:
+            print(e)
+            return JsonResponse({"courses": []}, safe=False)
