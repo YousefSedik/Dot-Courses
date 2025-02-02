@@ -1,6 +1,5 @@
 {% extends 'core/main.html' %}
 
-
 {% block title %}
 {{ course.name }}
 {% endblock title %}
@@ -8,120 +7,174 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row">
+        <!-- Course Details Section -->
         <div class="col-md-8">
-            <div class="card">
-                <img src="{{ course.thumbnail.url }}" class="card-img-top" style="width: 100%; height: 300px;"
+            <div class="card shadow-sm mb-4">
+                <img src="{{ course.thumbnail.url }}" class="card-img-top" style="height: 400px; object-fit: cover;"
                     alt="{{ course.name }}">
                 <div class="card-body">
-                    <h5 class="card-title">{{ course.name }}</h5>
-                    <p class="card-text">{{ course.description }}</p>
-                    <p class="card-text">Instructor: {{ course.instructor.full_name }}</p>
+                    <h1 class="card-title display-5">{{ course.name }}</h1>
+                    <p class="card-text lead">{{ course.description }}</p>
+                    <p class="card-text text-muted">Instructor: {{ course.instructor.full_name }}</p>
 
-                    {% if course.price %}
-                    <p class="card-text">Price: ${{ course.price }}</p>
-                    {% if course.discount %}
-                    <p class="card-text">Discount: {{ course.discount }}%</p>
-                    <p class="card-text">Discounted Price:{{ course.final_price }} </p>
-                    {% endif %}
-                    {% endif %}
+                    <!-- Pricing Section -->
+                    <div class="bg-light p-4 rounded mb-4">
+                        {% if course.price %}
+                        <h5 class="mb-3">Pricing</h5>
+                        <p class="card-text fs-5">
+                            <strong>Price:</strong> ${{ course.price }}
+                        </p>
+                        {% if course.discount %}
+                        <p class="card-text fs-5 text-success">
+                            <strong>Discount:</strong> {{ course.discount }}%
+                        </p>
+                        <p class="card-text fs-5">
+                            <strong>Discounted Price:</strong> ${{ course.final_price }}
+                        </p>
+                        {% endif %}
+                        {% else %}
+                        <p class="card-text fs-5 text-success">
+                            <strong>Free</strong>
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Add to Cart Button -->
                     {% if not course.is_owned and course.id not in in_cart %}
-                    <button class="btn btn-primary mb-1 mt-1" hx-post="{% url 'core:AddToCart' course.id %}"
-                        hx-swap="delete" onclick="increment_cart()">
+                    <button class="btn btn-primary btn-lg w-100 mb-3" hx-post="{% url 'core:AddToCart' course.id %}"
+                        hx-swap="none" hx-indicator="#spinner-{{ course.id }}" hx-target="#cart-counter"
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' onclick="increment_cart()"
+                        id="add-to-cart-{{ course.id }}">
                         Add to Cart
+                        <span id="spinner-{{ course.id }}" class="htmx-indicator ms-2">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </span>
                     </button>
                     {% endif %}
-
                 </div>
             </div>
         </div>
+
+        <!-- Sidebar Section -->
         <div class="col-md-4">
-            <div class="card">
+            <!-- Course Information Card -->
+            <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">Course Details</h5>
-                    <ul class="list-group">
-                        <li class="list-group-item">Category: {{ course.category.name | title }}</li>
-                        <li class="list-group-item">Duration: {{ course.duration }}</li>
-                        <li class="list-group-item">Enrolled Students: {{ course.enrolled_counter }}</li>
-                        <li class="list-group-item"> Rate: <br>
-                            {{ course.rate }} / 5
+                    <h5 class="card-title mb-4">Course Information</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Category</span>
+                            <span class="text-muted">{{ course.category.name | title }}</span>
                         </li>
-
-                        {% if course.is_owned %}
-                        <li class="list-group-item"> My Rate:
-                            {% include 'core/components/rating.html' %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Duration</span>
+                            <span class="text-muted">{{ course.duration }}</span>
                         </li>
-
-                        {% endif %}
-
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Enrolled Students</span>
+                            <span class="text-muted">{{ course.enrolled_counter }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Rating</span>
+                            <span class="text-muted">{{ course.rate }} / 5</span>
+                        </li>
                     </ul>
-                    <hr>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col">
 
-            </div>
-
-        </div>
-        <div class="col-md-4 mt-5 mb-4">
-            <div class="card">
+            <!-- Course Content Card -->
+            <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">Course Content</h5>
-                    <ul class="list-group">
-
+                    <h5 class="card-title mb-4">Course Content</h5>
+                    <ul class="list-group list-group-flush">
                         {% if course.is_owned %}
                         {% for video in content %}
                         <a href="{% url 'core:ViewCourse' course_slug=course.slug video_no=video.counter %}"
-                            class="list-group-item list-group-item-action">{{ video.name }}</a>
+                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            {{ video.name }}
+                            <span class="badge bg-primary rounded-pill">Watch</span>
+                        </a>
                         {% endfor %}
                         {% else %}
                         {% for video in content %}
-                        <li class="list-group-item">{{ video.name }}</li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ video.name }}
+                            <span class="badge bg-secondary rounded-pill">Locked</span>
+                        </li>
                         {% endfor %}
                         {% endif %}
                     </ul>
                 </div>
             </div>
-
         </div>
+    </div>
 
-        {% if rates %}
-
-
-
-        <div class="col-md-4 mt-5 mb-4">
-            <div class="card">
+    <!-- Reviews Section -->
+    {% if rates %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Rating</h5>
-
-                    <ul class="list-group">
+                    <h2 class="card-title mb-4">Student Reviews</h2>
+                    <div class="row">
                         {% for rate in rates %}
-                        <!-- <li class="list-group-item"> -->
-                        <div class="card mt-2 mb-2">
-                            <h5 class="card-header">{{ rate.student.first_name }}</h5>
-                            <div class="card-body">
-                                <h5 class="card-title">Rate: {{rate.rate}} / 5 </h5>
-                                <p class="card-text"> {{ rate.review_text }}</p>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ rate.student.first_name }}</h5>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="me-2">Rating:</span>
+                                        <div class="text-warning">
+                                            {% for i in "12345" %}
+                                            {% if forloop.counter <= rate.rate %} <i class="fas fa-star"></i>
+                                                {% else %}
+                                                <i class="far fa-star"></i>
+                                                {% endif %}
+                                                {% endfor %}
+                                        </div>
+                                    </div>
+                                    <p class="card-text">{{ rate.review_text }}</p>
+                                </div>
                             </div>
                         </div>
-                        <!-- </li> -->
-
                         {% endfor %}
-                    </ul>
+                    </div>
                 </div>
             </div>
-
         </div>
-        {% endif %}
-        <script>
-            function increment_cart() {
-                var current = document.getElementById('counter').innerHTML;
-                var currentInt = parseInt(current);
-                var incrementedValue = currentInt + 1;
-                document.getElementById('counter').innerHTML = incrementedValue;
-            }
-        </script>
     </div>
+    {% endif %}
 </div>
+
+<!-- JavaScript for Dynamic Updates -->
+<script>
+    function increment_cart() {
+        // Update the cart counter
+        const cartCounter = document.getElementById('cart-counter');
+        if (cartCounter) {
+            const currentCount = parseInt(cartCounter.innerHTML);
+            cartCounter.innerHTML = currentCount + 1;
+        }
+
+        // Disable the button to prevent duplicate clicks
+        const addToCartButton = document.getElementById('add-to-cart-{{ course.id }}');
+        if (addToCartButton) {
+            addToCartButton.disabled = true;
+            addToCartButton.innerHTML = 'Added to Cart';
+            addToCartButton.classList.remove('btn-primary');
+            addToCartButton.classList.add('btn-success');
+        }
+
+        // Show a success message
+        const successMessage = document.createElement('div');
+        successMessage.className = 'alert alert-success mt-3';
+        successMessage.innerHTML = 'Course added to cart successfully!';
+        document.querySelector('.card-body').appendChild(successMessage);
+
+        // Remove the success message after 3 seconds
+        setTimeout(() => {
+            successMessage.remove();
+        }, 3000);
+    }
+</script>
 {% endblock %}

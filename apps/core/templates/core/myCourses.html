@@ -1,31 +1,78 @@
 {% extends 'core/main.html' %}
 
-{% block title %}
-My Courses
-{% endblock title %}
+{% block title %} My Courses {% endblock title %}
 
 {% block content %}
-<div class="container text-center">
-  {% if courses is None %}
-  <h1>You have no courses </h1>
-  {% else %}
-  <!-- <div class="row"> -->
-  <!-- <div class="col-9"> -->
-  {% for purchase in courses %}
-  <div class="card mb-3 mt-3" id="purchase.course-{{purchase.course.id}}">
-    <img src="{{ purchase.course.thumbnail.url }}" height="240" width="1000" class="card-img-top"
-      alt="Course Thumbnail.">
-    <div class="card-body">
-      <h5 class="card-title">{{ purchase.course.name }}</h5>
-      <p class="card-text">{{ purchase.course.description }}</p>
-      <p class="card-text"><small class="text-body-secondary">By {{purchase.course.instructor.full_name}}</small></p>
-      <a class="btn btn-primary" href="{% url 'core:about_course' course_slug=purchase.course.slug %}">Go To Course </a>
-    </div>
-  </div>
+<div class="container py-5">
+  <h2 class="text-center fw-bold mb-4">My Courses</h2>
 
-  {% endfor %}
-  <!-- </div> -->
-  <!-- </div> -->
+  {% if courses is None %}
+  <div class="text-center">
+    <h4 class="text-muted">You haven't enrolled in any courses yet.</h4>
+    <a href="{% url 'core:explore_courses' %}" class="btn btn-primary mt-3">Explore Courses</a>
+  </div>
+  {% else %}
+  <div class="row g-4">
+    {% for purchase in courses %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm border-0 course-card h-100">
+        <div class="position-relative">
+          <img src="{{ purchase.course.thumbnail.url }}" class="card-img-top rounded-top" alt="Course Thumbnail">
+          <div class="overlay">
+            <a href="{% url 'core:about_course' course_slug=purchase.course.slug %}" class="btn btn-light">View
+              Course</a>
+          </div>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title fw-bold">{{ purchase.course.name }}</h5>
+          <p class="card-text text-muted">{{ purchase.course.description|truncatewords:20 }}</p>
+          <p class="text-primary small">By {{ purchase.course.instructor.full_name }}</p>
+          <a href="{% url 'core:about_course' course_slug=purchase.course.slug %}" class="btn btn-primary w-100">
+            Go To Course
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
   {% endif %}
 </div>
+
+<style>
+  .course-card {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .course-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .position-relative {
+    overflow: hidden;
+  }
+
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .position-relative:hover .overlay {
+    opacity: 1;
+  }
+
+  .overlay .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+</style>
+
 {% endblock content %}

@@ -1,79 +1,117 @@
 {% extends 'core/main.html' %}
-{% block title %}
-Cart
-{% endblock title %}
+{% block title %}Cart{% endblock title %}
+
 {% block content %}
-<div class="container text-center">
+<div class="container mt-5">
     {% if courses is None %}
-    <h1>There Are No Courses in the Cart .. </h1>
+    <div class="text-center">
+        <h1 class="display-4">Your Cart is Empty</h1>
+        <p class="lead">Looks like you haven't added any courses yet. Start exploring our courses!</p>
+        <a href="{% url 'core:course_list' %}" class="btn btn-primary btn-lg">Browse Courses</a>
+    </div>
     {% else %}
     <div class="row">
-        <div class="col">
+        <!-- Course List -->
+        <div class="col-md-8">
+            <h2 class="mb-4">Your Cart</h2>
             {% for course in courses %}
-            <div class="card mb-3 mt-3 obj" id="course-{{course.id}}" slug={{course.slug}}">
-                <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="Course Thumbnail" height="200"
-                    width="300">
-                <div class="card-body">
-                    <h5 class="card-title">{{ course.name }}</h5>
-                    <p class="card-text"> {{ course.description }} </p>
-                    <p class="card-text"><small class="text-body-secondary">By {{course.instructor.full_name}}</small>
-                    </p>
-                    <button slug="{{course.slug}}" class="btn btn-danger"
-                        hx-delete="{% url 'core:DeleteFromCart' course.id %}" hx-target="#course-{{course.id}}"
-                        hx-swap="delete" onclick="delete_course_element(this)">
-                        Remove From Cart
-                    </button>
+            <div class="card mb-3 shadow-sm" id="course-{{course.slug}}" slug="{{course.slug}}">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="{{ course.thumbnail.url }}" class="img-fluid rounded-start" alt="{{ course.name }}"
+                            style="height: 200px; width: 100%; object-fit: cover;">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ course.name }}</h5>
+                            <p class="card-text text-muted">{{ course.description|truncatechars:100 }}</p>
+                            <p class="card-text"><small class="text-muted">Instructor: {{ course.instructor.full_name
+                                    }}</small></p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="card-text h5 mb-0">
+                                    {% if course.final_price %}
+                                    ${{ course.final_price }}
+                                    {% else %}
+                                    Free
+                                    {% endif %}
+                                </p>
+                                <button slug="{{course.slug}}" class="btn btn-danger btn-sm"
+                                    hx-delete="{% url 'core:DeleteFromCart' course.id %}"
+                                    hx-target="#course-{{course.slug}}" hx-swap="delete"
+                                    onclick="delete_course_element(this)">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             {% endfor %}
         </div>
 
-    </div>
-    <script>
-        function delete_course_element(element) {
-            // Remove Course From The List
-            course_slug = element.getAttribute('slug')
-            course_obj = document.getElementById(`cs-${course_slug}`)
-            course_price = parseInt(course_obj.getAttribute('price'))
-            course_obj.parentNode.removeChild(course_obj);
-            // Update total_price
-            total_price = parseInt(document.getElementById('total_price').innerHTML)
-            new_total_price = total_price - course_price
-            document.getElementById('total_price').innerHTML = new_total_price
-
-            // Update Cart(N)
-            counter = parseInt(document.getElementById('counter').innerHTML)
-            counter -= 1
-            document.getElementById('counter').innerHTML = counter
-
-        }
-        function setup_cart_counter() {
-            data = document.getElementsByClassName(" card mb-3 obj")
-            document.getElementById('counter').innerHTML = data.length
-        }
-        setup_cart_counter() 
-    </script>
-    <div class="card">
-        <div class="card-body">
-            <ul class="list-group">
-                {% for course in courses %}
-                <li class="list-group-item" id="cs-{{course.slug}}"
-                    price="{% if course.final_price %}{{course.final_price}}{% else %}0{% endif %}">
-                    <h5>
-                        {{course.name}}
-                        {% if course.final_price %}: {{course.final_price}}
-                        {% else %} 0
-                        {% endif %}
-                    </h5>
-                </li>
-                {% endfor %}
-                <li class="list-group-item">
-                    <h3>Total Price:<span id="total_price"> {{total_price}} </span></h3>
-                </li>
-                <a class="btn btn-primary" href="{% url 'payment:Checkout' %}""> Checkout</a>
-            </ul>
+        <!-- Order Summary -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Order Summary</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for course in courses %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center"
+                            id="cs-{{course.slug}}"
+                            price="{% if course.final_price %}{{course.final_price}}{% else %}0{% endif %}">
+                            <span>{{ course.name }}</span>
+                            <span class="text-muted">
+                                {% if course.final_price %}
+                                ${{ course.final_price }}
+                                {% else %}
+                                Free
+                                {% endif %}
+                            </span>
+                        </li>
+                        {% endfor %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Total</strong>
+                            <strong>$<span id="total_price">{{ total_price }}</span></strong>
+                        </li>
+                    </ul>
+                    <div class="d-grid mt-4">
+                        <a href="{% url 'payment:Checkout' %}" class="btn btn-primary btn-lg">Proceed to Checkout</a>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>    
+    </div>
     {% endif %}
-</div>  
-        {% endblock content %}
+</div>
+
+<script>
+    function delete_course_element(element) {
+        // Get the course slug from the button's attribute
+        const course_slug = element.getAttribute('slug');
+
+        // Remove the course card
+        const course_card = document.getElementById(`course-${course_slug}`);
+        if (course_card) {
+            course_card.remove();
+        }
+
+        // Remove the course from the list
+        const course_list_item = document.getElementById(`cs-${course_slug}`);
+        if (course_list_item) {
+            const course_price = parseInt(course_list_item.getAttribute('price'));
+            course_list_item.remove();
+
+            // Update the total price
+            const total_price = parseInt(document.getElementById('total_price').innerHTML);
+            const new_total_price = total_price - course_price;
+            document.getElementById('total_price').innerHTML = new_total_price;
+
+            // Update the cart counter
+            const counter = document.getElementById('counter');
+            if (counter) {
+                counter.innerHTML = parseInt(counter.innerHTML) - 1;
+            }
+        }
+    }
+</script>
+{% endblock content %}

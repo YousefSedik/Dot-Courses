@@ -1,59 +1,59 @@
-<div class="row" id="all-courses">
+<div class="container py-5">
+  <h2 class="text-center fw-bold mb-4">Available Courses</h2>
 
-  {% for course in courses %}
+  <div class="row g-4" id="all-courses">
+    {% for course in courses %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card border-0 shadow-sm h-100 course-card">
+        <div class="position-relative">
+          <img src="{{ course.thumbnail.url }}" class="card-img-top rounded-top" alt="Course Image" height="200">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title fw-bold">{{ course.name }}</h5>
+          <p class="card-text text-muted">
+            {{ course.description|slice:":100" }}{% if course.description|length > 100 %}...{% endif %}
+          </p>
 
+          <div class="mt-auto">
+            <a href="{% url 'core:about_course' course.slug %}" class="btn btn-outline-primary w-100">Open</a>
 
-  <div class="col-md-4">
-    <div class="card mb-4" style="width: 18rem;">
-      <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="Course Image" width="300" height="150">
-      <div class="card-body">
-        <h5 class="card-title">{{ course.name }}</h5>
-        <p class="card-text">
-          {{ course.description|slice:":100" }}
-          {% if course.description|length > 100 %}
-            ...
-          {% endif %}
-            
-          
-        </p>
-        <div id="card-{{ course.id }}">
-          <a href="{% url 'core:about_course' course.slug %}" class="btn btn-primary mb-1 mt-1"> Open</a>
-          {% if course.id in in_cart %}
+            {% if course.id in in_cart %}
+            <a href="{% url 'core:Cart' %}" class="btn btn-success w-100 mt-2">Checkout</a>
+            {% elif course.is_owned %}
+            <span class="badge bg-success w-100 mt-2">Owned</span>
+            {% else %}
+            <button onclick="increment_cart()" id="course-add-to-cart-{{course.id}}" class="btn btn-primary w-100 mt-2"
+              hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="outerHTML"
+              hx-target="#course-add-to-cart-{{course.id}}">
+              Add to Cart
+            </button>
 
-          <a href="{% url 'payment:Checkout' %}" class="btn btn-primary mb-1 mt-1"> Added To Cart.. Checkout
-          </a>
-          {% elif course.is_owned %}
-
-          {% else %}
-          <button onclick="increment_cart()" id="course-add-to-cart-{{course.id}}" class="btn btn-primary mb-1 mt-1"
-            hx-post="{% url 'core:AddToCart' course.id %}" hx-swap="outerHTML"
-            hx-target="#course-add-to-cart-{{course.id}}">
-            Add to Cart
-          </button>
-          {% if course.price %}
-          <button class="btn btn-primary mb-1 mt-1"> {{course.final_price }} </button>
-          {% else %}
-          <button class="btn btn-primary mb-1 mt-1"> Free </button>
-
-          {% endif %}
-          {% endif %}
-
-
-          <script>
-            function increment_cart() {
-              var current = document.getElementById('counter').innerHTML;
-              var currentInt = parseInt(current);
-              var incrementedValue = currentInt + 1;
-              document.getElementById('counter').innerHTML = incrementedValue;
-            }
-          </script>
-
-
-
+            <button class="btn btn-outline-dark w-100 mt-2">
+              {% if course.price %} ${{ course.final_price }} {% else %} Free {% endif %}
+            </button>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
+    {% endfor %}
   </div>
-
-  {% endfor %}
 </div>
+
+<style>
+  .course-card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+  }
+
+  .course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+  }
+</style>
+
+<script>
+  function increment_cart() {
+    var counter = document.getElementById('counter');
+    counter.innerHTML = parseInt(counter.innerHTML) + 1;
+  }
+</script>
