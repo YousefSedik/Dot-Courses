@@ -27,25 +27,29 @@ class Command(BaseCommand):
         students = [
             User.objects.create_user(
                 # username=f"student{i}",
-                full_name=fake.name(),
-                email=f"email{i}@gg.com",
+                first_name=fake.first_name(),
+                middle_name=fake.first_name(),
+                last_name=fake.last_name(),
+                email=fake.email(),
                 password=fake.password(),
             )
-            for i in range(5)
+            for i in range(100)
         ]
         instructors = [
             User.objects.create_user(
                 # username=f"student{i}",
-                full_name=fake.name(),
-                email=f"email{i}@gg.com",
+                first_name=fake.first_name(),
+                middle_name=fake.last_name(),
+                last_name=fake.name(),
+                email=fake.email(),
                 password=fake.password(),
                 is_instructor=True,
             )
-            for i in range(3)
+            for i in range(5)
         ]
-        self.stdout.write(
-            f"Created {len(students)} students and {len(instructors)} instructors."
-        )
+        # self.stdout.write(
+        #     f"Created {len(students)} students and {len(instructors)} instructors."
+        # )
 
         # Create categories
         categories = [Category.objects.create(name=fake.word()) for _ in range(3)]
