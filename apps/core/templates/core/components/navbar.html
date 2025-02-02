@@ -16,13 +16,7 @@
 
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
       <ul class="navbar-nav align-items-center gap-3">
-        <!-- Search Bar -->
-        <li class="nav-item">
-          <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
-          </form>
-        </li>
+        
 
         <!-- Cart Dropdown -->
         <li class="nav-item dropdown" id="cartDropdown">
@@ -66,8 +60,10 @@
         </li>
         {% else %}
         <li class="nav-item">
-          <a class="btn btn-outline-primary btn-sm" href="{% url 'account_login' %}"><i class="fas fa-sign-in-alt"></i>
-            Login</a>
+          <a class="btn btn-outline-primary btn-sm mr-2" href="{% url 'account_login' %}"><i class="fas fa-sign-in-alt"></i>
+            Login
+          </a>
+          
         </li>
         <li class="nav-item">
           <a class="btn btn-primary btn-sm" href="{% url 'account_signup' %}"><i class="fas fa-user-plus"></i> Sign
@@ -75,7 +71,7 @@
         </li>
         {% endif %}
 
-        
+
       </ul>
     </div>
   </nav>
@@ -133,7 +129,6 @@
 
 
 <style>
-
   .navbar-nav .nav-link:hover {
     color: #007bff;
   }
