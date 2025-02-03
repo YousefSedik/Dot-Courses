@@ -12,8 +12,8 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 RUN apt-get update -y && \
     apt-get install -y gcc libpq-dev && \
     apt-get install libreoffice -y && \
-    apt-get install -y libmediainfo-dev
-
+    apt-get install -y libmediainfo-dev && \
+    apt-get install -y ffmpeg
 # 4: create project folder: kernel
 WORKDIR /app
 

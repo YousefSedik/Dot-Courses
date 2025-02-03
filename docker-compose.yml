@@ -10,22 +10,41 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-    
+      - ./media:/app/media  # Persist media files on the host machine
     restart: always
-
+    depends_on:
+      - db
+      - redis
 
   redis:
-    image: redis:latest
-    container_name: redis-worker
-
+    image: redis:7.4
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
 
   celery:
     container_name: celery
     build: .
-    command: celery -A dotCourses worker -l INFO 
+    command: celery -A dotCourses worker --loglevel=info
     depends_on:
       - redis
-  
+    volumes:
+      - ./media:/app/media  # Shared media storage
+      - .:/app 
+    restart: always
+
+  flower:
+    container_name: flower
+    build: .
+    command: celery -A dotCourses flower --port=5555
+    depends_on:
+      - redis
+      - celery
+    ports:
+      - "5555:5555"
+    restart: always
+
   db:
     image: postgres:latest
     container_name: dotCourses_db_postgres
@@ -35,6 +54,8 @@ services:
       POSTGRES_DB: dotCourses
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persistent PostgreSQL storage
 
   pgadmin_page:
     image: dpage/pgadmin4
@@ -47,5 +68,7 @@ services:
       - "5050:80"                              
     depends_on:
       - db
+
 volumes:
-  postgres_data:
+  postgres_data:  # Persistent storage for PostgreSQL
+  media_volume:   # Persistent storage for media files (mapped to host)

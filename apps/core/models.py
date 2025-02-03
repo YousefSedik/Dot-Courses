@@ -10,6 +10,7 @@ import secrets
 import string
 from django.core.validators import MaxValueValidator, MinValueValidator
 from .utils import main
+from .tasks import convert_to_hls
 
 alphabet = string.ascii_letters + string.digits
 key_length = 10
@@ -105,7 +106,13 @@ class Video(models.Model):
     video = models.FileField(upload_to="videos/")
     name = models.CharField(max_length=200)
     counter = models.PositiveSmallIntegerField(verbose_name="number of the video in the course")
-
+    master_playlist = models.CharField(max_length=200, blank=True)
+    
+    @property
+    def get_master_playlist(self):
+        if not self.master_playlist:
+            return None
+        return '/media/'+ self.master_playlist
     class Meta:
         ordering = ["counter"]
         unique_together = [["course", "counter"]]
@@ -249,7 +256,6 @@ def increment_enrolled_counter(instance, created, *args, **kwargs):
             for video in videos
         ]
         UserCourseProgress.objects.bulk_create(user_progress_objs)
-        
 
 
 @receiver(post_delete, sender=Purchase)
@@ -281,6 +287,11 @@ def add_duration_signal(instance, *args, **kwargs):
     course_obj.duration += video_time
     course_obj.save()
 
+@receiver(post_save, sender=Video)
+def convert_to_hls_signal(instance, created, *args, **kwargs):
+    if not created:  # Only process new instances
+        return
+    convert_to_hls.delay(instance.id)
 
 @receiver(post_delete, sender=Video)
 def remove_duration_signal(instance, *args, **kwargs):
