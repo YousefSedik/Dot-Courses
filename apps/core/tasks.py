@@ -4,7 +4,7 @@ import logging
 from celery import shared_task
 from django.conf import settings
 from django.apps import apps
-
+from django.core.cache import cache
 logger = logging.getLogger(__name__)
 
 
@@ -83,13 +83,61 @@ def convert_to_hls(self, video_id):
 
         # Update video model
         video.master_playlist = os.path.join("hls", str(video.id), "master.m3u8")
-        video.save()
+        video.status = "ready"
 
         logger.info(f"HLS conversion completed for video {video_id}")
 
     except Video.DoesNotExist:
+        video.status = "failed"
         logger.error(f"Video with ID {video_id} not found")
         raise
     except Exception as exc:
+        video.status = "failed"
         logger.error(f"Unexpected error in HLS conversion: {exc}")
         raise self.retry(exc=exc)
+    video.save()
+
+
+@shared_task
+def video_progress_synchronizer():
+    UserCourseProgress = apps.get_model("core", "UserCourseProgress")
+    """
+    video_progress {
+        user_id: {
+            video_id: {
+                watched_to: 0.5
+            }
+        }
+    }
+    """
+    data = cache.get("video_progress")
+
+    data = cache.get("video_progress")
+    if data is None:
+        print("No data found in cache. Initializing empty cache.")
+        cache.set("video_progress", {})
+        return
+
+    data_processed = {}
+    for user_id, videos in data.items():
+        for video_id, video_data in videos.items():
+            try:
+                UserCourseProgress.objects.filter(
+                    student__id=user_id, video__id=video_id
+                ).update(progress=video_data["watched_to"])
+
+                data_processed[(user_id, video_id)] = True
+            except Exception as e:
+                pass
+
+    for user_id, videos in list(data.items()): 
+        for video_id in list(videos.keys()):  
+            if data_processed.get((user_id, video_id)):
+                del data[user_id][video_id]
+
+        # Remove empty user entries from the cache
+        if not data[user_id]:
+            del data[user_id]
+
+    # Update the cache with the cleaned data
+    cache.set("video_progress", data)

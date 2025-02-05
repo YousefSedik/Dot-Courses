@@ -10,9 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+from apps.core.tasks import video_progress_synchronizer
+from celery.schedules import crontab
 from pathlib import Path
-import os
 import environ
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,6 +56,7 @@ INSTALLED_APPS = [
     "django_htmx",
     "django_extensions",
     "bootstrap4",
+    "django_celery_beat",
     # Internal Apps
     "apps.core",
     "apps.users",
@@ -202,6 +205,14 @@ LOGIN_REDIRECT_URL = "/clear-cart-cookies"
 
 CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+
+
+CELERY_BEAT_SCHEDULE = {
+    "video_progress_synchronizer": {
+        "task": "apps.core.tasks.video_progress_synchronizer",
+        "schedule": crontab(minute="*/1"),
+    },
+}
 
 
 # Allauth Social Account

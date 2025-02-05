@@ -33,6 +33,18 @@ services:
       - ./media:/app/media  # Shared media storage
       - .:/app 
     restart: always
+  
+  celery_beat:
+    container_name: celery_beat
+    build: .
+    command: celery -A dotCourses beat --loglevel=info
+    depends_on:
+      - redis
+      - celery
+    volumes:
+      - ./media:/app/media  # Shared media storage
+      - .:/app 
+    restart: always
 
   flower:
     container_name: flower
