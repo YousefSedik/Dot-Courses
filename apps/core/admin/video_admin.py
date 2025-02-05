@@ -1,5 +1,5 @@
 from ..models import Video, Course
-from ..forms import QuestionAdminForm
+from .forms import QuestionAdminForm
 from .base_admin import BaseAdmin 
 from django.contrib import admin
 from .filters import VideoCourseFilter
@@ -17,7 +17,7 @@ class VideoAdmin(BaseAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:
             return self.readonly_fields + ['video']
-        return self.readonly_fields
+        return self.readonly_fields + ['status', 'master_playlist']
 
     def get_queryset(self, request, **kwargs):
         qs = super().get_queryset(request, **kwargs)

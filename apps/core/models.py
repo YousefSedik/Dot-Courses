@@ -10,6 +10,7 @@ import secrets
 import string
 from django.core.validators import MaxValueValidator, MinValueValidator
 from .utils import main
+from .tasks import convert_to_hls
 
 alphabet = string.ascii_letters + string.digits
 key_length = 10
@@ -105,7 +106,14 @@ class Video(models.Model):
     video = models.FileField(upload_to="videos/")
     name = models.CharField(max_length=200)
     counter = models.PositiveSmallIntegerField(verbose_name="number of the video in the course")
-
+    master_playlist = models.CharField(max_length=200, blank=True)
+    status = models.CharField(max_length=20, default="pending")
+    
+    @property
+    def get_master_playlist(self):
+        if not self.master_playlist:
+            return None
+        return '/media/'+ self.master_playlist
     class Meta:
         ordering = ["counter"]
         unique_together = [["course", "counter"]]
@@ -184,12 +192,8 @@ class Purchase(models.Model):
     def create_from_cart(cls, student, course_ids):
         try:
             with transaction.atomic():
-                purchase_objs = [
-                    cls(student=student, course_id=course_id)
-                    for course_id in course_ids
-                ]
-                cls.objects.bulk_create(purchase_objs)
-                # clear the cart
+                for course_id in course_ids:
+                    cls.objects.create(student=student, course_id=course_id)
                 Cart.objects.filter(student=student).delete()
                 return True
         except Exception as e:
@@ -230,6 +234,7 @@ class UserCourseProgress(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
     watched = models.BooleanField(default=False)
+    progress = models.FloatField(default=0.0)
     
     def __str__(self):
         return f"{self.student} watched {self.video} video"
@@ -239,6 +244,7 @@ class UserCourseProgress(models.Model):
 
 @receiver(post_save, sender=Purchase)
 def increment_enrolled_counter(instance, created, *args, **kwargs):
+    print("craeeeee", created)
     if created:
         instance.course.enrolled_counter += 1
         instance.course.save()
@@ -248,8 +254,8 @@ def increment_enrolled_counter(instance, created, *args, **kwargs):
             UserCourseProgress(student=instance.student, video=video)
             for video in videos
         ]
+        print("bulk_create")
         UserCourseProgress.objects.bulk_create(user_progress_objs)
-        
 
 
 @receiver(post_delete, sender=Purchase)
@@ -281,6 +287,11 @@ def add_duration_signal(instance, *args, **kwargs):
     course_obj.duration += video_time
     course_obj.save()
 
+@receiver(post_save, sender=Video)
+def convert_to_hls_signal(instance, created, *args, **kwargs):
+    if not created:  # Only process new instances
+        return
+    convert_to_hls.delay(instance.id)
 
 @receiver(post_delete, sender=Video)
 def remove_duration_signal(instance, *args, **kwargs):

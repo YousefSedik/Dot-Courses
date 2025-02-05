@@ -6,6 +6,7 @@ db.sqlite3
 media/videos/*
 media/thumbnail/*
 media/certificates/*
+media/hls/*
 .idea
 erd.drawio
 UseCase.drawio

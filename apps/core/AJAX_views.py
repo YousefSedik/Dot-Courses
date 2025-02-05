@@ -10,26 +10,18 @@ from django.db.models import Exists, OuterRef
 from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
-
+from django.core.cache import cache
 
 class SearchView(View):
     def get(self, request, *args, **kwargs):
         q = request.GET.get("q")
         context = {}
-        search_vector = SearchVector(
-            "name",
-            "description",
-            "instructor__first_name",
-            "instructor__middle_name",
-            "instructor__last_name",
-        )
-        search_query = SearchQuery(q)
-        context["courses"] = (
-            Course.objects.annotate(rank=SearchRank(search_vector, search_query))
-            .filter(rank__gte=0.3)
-            .order_by("-rank")
-        )
-
+        if q:
+            courses = Course.objects.filter(
+                Q(name__icontains=q)
+                | Q(description__icontains=q)
+            )[:20]
+            context["courses"] = courses
         if self.request.user.is_authenticated:
             context["courses"] = context["courses"].annotate(
                 is_owned=Exists(
@@ -218,3 +210,24 @@ class NavbarCartView(View):
             return JsonResponse({"courses": courses_data}, safe=False)
         except Exception as e:
             return JsonResponse({"courses": []}, safe=False)
+
+
+def video_progress_tracker(request):
+    try:
+        if request.user.is_authenticated :
+            # query params
+            video_id = request.GET.get("video_id")
+            watched_to = request.GET.get("watched_to")
+            user_id = request.user.id
+            data = cache.get("video_progress", {})
+            user_data = data.get(user_id, {})
+            if user_data.get(video_id):
+                user_data[video_id]["watched_to"] = watched_to
+            else:
+                user_data[video_id] = {"watched_to": watched_to}
+            data = {**data, user_id: user_data}
+            print(data)
+            cache.set("video_progress", data)
+        return JsonResponse({"status": "OK"})
+    except Exception as e:
+        return JsonResponse({"status": f"Error {str(e)}"}, status=500)

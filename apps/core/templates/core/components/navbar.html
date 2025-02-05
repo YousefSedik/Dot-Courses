@@ -20,7 +20,7 @@
 
         <!-- Cart Dropdown -->
         <li class="nav-item dropdown" id="cartDropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="cartButton" role="button">
+          <a class="nav-link dropdown-toggle" href="{% url 'core:Cart' %}" id="cartButton" role="button">
             <i class="fas fa-shopping-cart"></i> Cart (<span id="counter">{{ cart_counter }}</span>)
           </a>
           <ul class="dropdown-menu p-3" id="cartItems" aria-labelledby="cartButton" style="min-width: 250px;">
@@ -82,46 +82,59 @@
     const cartDropdown = document.getElementById("cartDropdown");
     const cartItems = document.getElementById("cartItems");
 
-    cartDropdown.addEventListener("mouseenter", function () {
-      cartItems.innerHTML = "<li class='text-center text-muted'>Loading...</li>";
-      fetch("{% url 'core:NavBarCart' %}")  // Replace with your actual cart API URL
-        .then(response => response.json())
-        .then(data => {
-          cartItems.innerHTML = ""; // Clear previous items
-          if (data.courses.length === 0) {
-            cartItems.innerHTML = "<li class='text-center text-muted'>Your cart is empty.</li>";
-          } else {
-            console.log(data);
-            data.courses.forEach(item => {
-              console.log(item);
-              // Calculate discounted price
-              const discountAmount = (parseFloat(item.price) * item.discount) / 100;
-              const finalPrice = (parseFloat(item.price) - discountAmount).toFixed(2);
-              const discountBadge = item.discount
-                ? `<span class="text-danger ms-2"><del>$${parseFloat(item.price).toFixed(2)}</del></span>`
-                : "";
-              cartItems.innerHTML += `
-                <li class="dropdown-item d-flex align-items-center">
-                  <img src="${item.thumbnail}" alt="Thumbnail" width="50" height="50" class="rounded me-3">
-                  <div class="d-flex flex-column">
-                    <strong>${item.name}</strong>
-                    <span class="text-success">$${finalPrice}${discountBadge}</span>
-                  </div>
-                </li>
-                <hr class="my-1">
-              `;
-            });
+    let fetchTimeout;
 
-            cartItems.innerHTML += `
-              <li class="text-center mt-2">
-                <a href="{% url 'core:Cart' %}" class="btn btn-primary btn-sm">Go to Cart</a>
+    cartDropdown.addEventListener("mouseenter", function () {
+      // Show loading message immediately
+      cartItems.innerHTML = "<li class='text-center text-muted'>Loading...</li>";
+
+      // Set a timeout for the fetch request
+      fetchTimeout = setTimeout(() => {
+        fetch("{% url 'core:NavBarCart' %}")  // Replace with your actual cart API URL
+          .then(response => response.json())
+          .then(data => {
+            cartItems.innerHTML = ""; // Clear previous items
+            if (data.courses.length === 0) {
+              cartItems.innerHTML = "<li class='text-center text-muted'>Your cart is empty.</li>";
+            } else {
+              console.log(data);
+              data.courses.forEach(item => {
+                console.log(item);
+                // Calculate discounted price
+                const discountAmount = (parseFloat(item.price) * item.discount) / 100;
+                const finalPrice = (parseFloat(item.price) - discountAmount).toFixed(2);
+                const discountBadge = item.discount
+                  ? `<span class="text-danger ms-2"><del>$${parseFloat(item.price).toFixed(2)}</del></span>`
+                  : "";
+                cartItems.innerHTML += `
+              <li class="dropdown-item d-flex align-items-center">
+                <img src="${item.thumbnail}" alt="Thumbnail" width="50" height="50" class="rounded me-3">
+                <div class="d-flex flex-column">
+                  <strong>${item.name}</strong>
+                  <span class="text-success">$${finalPrice}${discountBadge}</span>
+                </div>
               </li>
+              <hr class="my-1">
             `;
-          }
-        })
-        .catch(error => {
-          cartItems.innerHTML = "<li class='text-center text-danger'>Failed to load.</li>";
-        });
+              });
+
+              cartItems.innerHTML += `
+            <li class="text-center mt-2">
+              <a href="{% url 'core:Cart' %}" class="btn btn-primary btn-sm">Go to Cart</a>
+            </li>
+          `;
+            }
+          })
+          .catch(error => {
+            cartItems.innerHTML = "<li class='text-center text-danger'>Failed to load.</li>";
+          });
+      }, 1000); // 1000 milliseconds = 1 second
+    });
+
+    cartDropdown.addEventListener("mouseleave", function () {
+      // Clear the timeout if the mouse leaves before the delay is over
+      clearTimeout(fetchTimeout);
+      cartItems.innerHTML = ""; // Optionally clear the loading message
     });
   });
 </script>

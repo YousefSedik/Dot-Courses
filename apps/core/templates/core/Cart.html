@@ -25,8 +25,9 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ course.name }}</h5>
                             <p class="card-text text-muted">{{ course.description|truncatechars:100 }}</p>
-                            <p class="card-text"><small class="text-muted">Instructor: {{ course.instructor.full_name
-                                    }}</small></p>
+                            <p class="card-text"><small class="text-muted">
+                                    Instructor: {{course.instructor.full_name}}
+                                </small></p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <p class="card-text h5 mb-0">
                                     {% if course.final_price %}
@@ -35,10 +36,9 @@
                                     Free
                                     {% endif %}
                                 </p>
-                                <button slug="{{course.slug}}" class="btn btn-danger btn-sm"
+                                <button type="submit" slug="{{ course.slug }}" class="btn btn-danger btn-sm"
                                     hx-delete="{% url 'core:DeleteFromCart' course.id %}"
-                                    hx-target="#course-{{course.slug}}" hx-swap="delete"
-                                    onclick="delete_course_element(this)">
+                                    hx-target="#course-{{ course.slug }}" hx-swap="delete" class="delete-course-btn">
                                     Remove
                                 </button>
                             </div>
@@ -85,10 +85,12 @@
 </div>
 
 <script>
+    document.addEventListener('htmx:afterRequest', function (evt) {
+        delete_course_element(evt.detail.target);
+        });
     function delete_course_element(element) {
         // Get the course slug from the button's attribute
         const course_slug = element.getAttribute('slug');
-
         // Remove the course card
         const course_card = document.getElementById(`course-${course_slug}`);
         if (course_card) {
@@ -98,13 +100,14 @@
         // Remove the course from the list
         const course_list_item = document.getElementById(`cs-${course_slug}`);
         if (course_list_item) {
-            const course_price = parseInt(course_list_item.getAttribute('price'));
+            const course_price = parseFloat(course_list_item.getAttribute('price'));
             course_list_item.remove();
 
             // Update the total price
-            const total_price = parseInt(document.getElementById('total_price').innerHTML);
+            const total_price = parseFloat(document.getElementById('total_price').innerHTML);
             const new_total_price = total_price - course_price;
-            document.getElementById('total_price').innerHTML = new_total_price;
+            
+            document.getElementById('total_price').innerHTML = new_total_price.toFixed(2);
 
             // Update the cart counter
             const counter = document.getElementById('counter');
