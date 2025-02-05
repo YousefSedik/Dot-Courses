@@ -93,18 +93,55 @@
         <video id="videoPlayer" class="video" controls controlsList="nodownload"></video>
         <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
         <script>
-          const video = document.getElementById('videoPlayer');
-          const videoSrc = "{{ video.get_master_playlist }}";
+          document.addEventListener("DOMContentLoaded", function () {
+            const video = document.getElementById("videoPlayer");
+            const videoSrc = "{{ video.get_master_playlist }}";
+            const videoId = "{{ video.id }}";  // Assuming you have a video ID from Django
+            let lastSavedTime = 0;
+            const saveInterval = 15; // Save progress every 30 seconds
 
-          if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(videoSrc);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-          } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = videoSrc;
-            video.addEventListener('loadedmetadata', () => video.play());
+            if (Hls.isSupported()) {
+              const hls = new Hls();
+              hls.loadSource(videoSrc);
+              hls.attachMedia(video);
+              hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                loadVideoProgress(video, videoId); // Load saved progress on start
+                video.play();
+              });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+              video.src = videoSrc;
+              video.addEventListener('loadedmetadata', () => {
+                loadVideoProgress(video, videoId);
+                video.play();
+              });
+            }
+
+            // Save video progress every 15 seconds
+            video.addEventListener("timeupdate", function () {
+              const currentTime = Math.floor(video.currentTime);
+              if (currentTime - lastSavedTime >= saveInterval) {
+                lastSavedTime = currentTime;
+                saveVideoProgress(videoId, currentTime);
+              }
+            });
+          });
+
+          // Function to save progress to Django backend
+          function saveVideoProgress(videoId, watched_to) {
+            fetch(`/update-video-progress?video_id=${videoId}&watched_to=${watched_to}`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              
+            }).catch(error => console.error("Error:", error));
           }
+
+          // Function to load saved progress
+          function loadVideoProgress(video) {
+            video.currentTime = parseInt("{{ progress.progress }}"); // Start from saved time
+          }
+
         </script>
       </div>
     </div>
