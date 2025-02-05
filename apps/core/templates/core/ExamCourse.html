@@ -1,59 +1,156 @@
 {% extends 'core/main.html' %}
 
 {% block title %}
-Exam
+Exam - {{ course.name }}
 {% endblock title %}
 
 {% block content %}
-<div class="container">
-
-
-    <div class="row">
-        <div class="col-md-8 offset-md-2 mt-2" id="Test-Div">
+<div class="container exam-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <!-- Already Passed Message -->
             {% if passed %}
-            {% include 'core/components/already_passed.html' %}
-            {% endif %}
-            <h2 class="mt-4 mb-4">Multiple Choice Questions</h2>
-
-            <form id="Questions-Form">
-                {% for question in questions %}
-                <div class="mcq-question">
-                    <h5 class="question"> {{ forloop.counter }}: {{ question.question }}</h5>
-                    {% for option in question.choice_set.all %}
-                    <div class="form-check -{{option.id}}" id="form-check -{{option.id}}">
-                        <input class="form-check-input" type="radio" name="{{question.id}}" id="option{{ option.id }}"
-                            value="{{ option.id }}" onclick="check_if_all_questions_are_answered()">
-                        <label class="form-check-label" for="option{{ option.id }}">{{ option.choice }}</label>
-                    </div>
-                    {% endfor %}
+            <div class="card passed-card mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title">🎉 You Have Already Passed This Exam!</h5>
+                    <p class="card-text">You have already passed this exam, so you don't need to take it again.</p>
+                    <a href="{{ next_video }}" class="btn btn-primary">Next Video</a>
                 </div>
-
-                {% if questions|length != forloop.counter %}
-                <hr>
-                {% endif %}
-                {% endfor %}
-                <button type="submit" class="btn btn-primary mt-4" hx-swap="afterend" disabled
-                    hx-target="#Questions-Form" hx-post="{% url 'core:Correction' course_id=course.id video_counter=questions.first.video.counter %}"
-                    hx-target="#Test-Div" hx-swap="outerHTML">Submit</button>
-            </form>
+            </div>
+            {% endif %}
+            <!-- Exam Questions -->
+            <div class="card exam-card">
+                <div class="card-header">
+                    <h2 class="card-title mb-0">Multiple Choice Questions</h2>
+                    <p class="card-subtitle">Answer all questions to submit your exam.</p>
+                </div>
+                <div class="card-body">
+                    <form id="Questions-Form">
+                        {% for question in questions %}
+                        <div class="mcq-question mb-4">
+                            <h5 class="question">{{ forloop.counter }}. {{ question.question }}</h5>
+                            <div class="options-list">
+                                {% for option in question.choice_set.all %}
+                                <div class="form-check option-item" id="form-check-{{ option.id }}">
+                                    <input class="form-check-input" type="radio" name="{{ question.id }}"
+                                        id="option{{ option.id }}" value="{{ option.id }}"
+                                        onclick="check_if_all_questions_are_answered()">
+                                    <label class="form-check-label" for="option{{ option.id }}">
+                                        {{ option.choice }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% if questions|length != forloop.counter %}
+                        <hr class="question-divider">
+                        {% endif %}
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary btn-submit mt-4" disabled hx-swap="afterend"
+                            hx-target="#Questions-Form"
+                            hx-post="{% url 'core:Correction' course_id=course.id video_counter=questions.first.video.counter %}"
+                            hx-target="#Test-Div" hx-swap="outerHTML">Submit</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<script>
 
-    all_questions = document.getElementsByClassName("question").length;
-    answers = document.getElementsByClassName("form-check-input");
+<script>
+    // Enable submit button only when all questions are answered
+    const all_questions = document.getElementsByClassName("question").length;
+    const answers = document.getElementsByClassName("form-check-input");
+
     function check_if_all_questions_are_answered() {
-        chosen_answers = 0
+        let chosen_answers = 0;
         for (let i = 0; i < answers.length; i++) {
-            if (answers[i].checked == true) {
-                chosen_answers += 1
-            }
+            if (answers[i].checked) chosen_answers++;
         }
-        if (all_questions == chosen_answers) {
-            document.querySelector('.btn.btn-primary.mt-4').disabled = false;
-        }
+        document.querySelector('.btn-submit').disabled = !(all_questions === chosen_answers);
     }
 </script>
+<style>
+    /* Custom Styles */
+    .exam-container {
+        padding: 2rem 0;
+    }
 
+    .exam-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .exam-card .card-header {
+        background-color: #007bff;
+        color: white;
+        border-radius: 10px 10px 0 0;
+        padding: 1.5rem;
+    }
+
+    .exam-card .card-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .exam-card .card-subtitle {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .mcq-question {
+        margin-bottom: 1.5rem;
+    }
+
+    .question {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .options-list {
+        margin-left: 1rem;
+    }
+
+    .option-item {
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 5px;
+        transition: background-color 0.2s;
+    }
+
+    .option-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .correct-answer {
+        background-color: #d4edda !important;
+        border-color: #c3e6cb !important;
+    }
+
+    .incorrect-answer {
+        background-color: #f8d7da !important;
+        border-color: #f5c6cb !important;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    .passed-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .passed-card .btn-primary {
+        background-color: #28a745;
+        border: none;
+    }
+</style>
 {% endblock %}

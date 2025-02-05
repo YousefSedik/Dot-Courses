@@ -1,3 +1,4 @@
+<!-- Hidden Data for Correction -->
 {% for key, value in Data.items %}
 <div class="Data" real_answer="{{ value.right_answer }}" chosen_answer="{{ value.chosen_answer }}"></div>
 {% endfor %}
@@ -9,36 +10,43 @@
 {% endif %}
 
 <script>
-    let data = document.getElementsByClassName("Data")
+
+
+    // Highlight correct and incorrect answers after submission
+    const data = document.getElementsByClassName("Data");
     for (let i = 0; i < data.length; i++) {
-        let real_answer = data[i].getAttribute("real_answer");
-        let chosen_answer = data[i].getAttribute("chosen_answer");
-        let chosenElement = document.getElementById(`form-check -${chosen_answer}`);
-        let realElement = document.getElementById(`form-check -${real_answer}`);
-        if (chosenElement) {
-            chosenElement.style = "background-color: rgb(226, 19, 19);border-radius: 2px;";
+        const real_answer = data[i].getAttribute("real_answer");
+        const chosen_answer = data[i].getAttribute("chosen_answer");
+        const chosenElement = document.getElementById(`form-check-${chosen_answer}`);
+        const realElement = document.getElementById(`form-check-${real_answer}`);
+        console.log(chosenElement, realElement);
+        if (chosenElement == realElement){
+            if (realElement) {
+                realElement.classList.add("correct-answer");
+            }
         }
-        if (realElement) {
-            realElement.style = "background-color: rgb(0, 240, 20);border-radius: 2px;";
+        else {
+            if (realElement) {
+                realElement.classList.add("correct-answer");
+            }
+            if (chosenElement) {
+                chosenElement.classList.add("incorrect-answer");
+            }
         }
     }
+
+    // Remove hidden data elements
     const dataDivs = document.querySelectorAll(".Data");
-    dataDivs.forEach(element => {
-        element.parentNode.removeChild(element);
-    });
+    dataDivs.forEach(element => element.remove());
 
-    // change submit btn to next video or refresh. 
-    let passed = document.getElementsByClassName("passed").length;
-    let btn = document.getElementsByClassName("btn btn-primary mt-4")[0]
+    // Update button based on pass/fail status
+    const passed = document.getElementsByClassName("passed").length;
+    const btn = document.querySelector(".btn-submit");
+
     if (passed) {
-        btn.outerHTML = '<a class="btn btn-primary mt-4" href="{{next_obj}}">Next Video</a>';
-
-    }
-    else {
+        btn.outerHTML = '<a class="btn btn-primary btn-submit mt-4" href="{{ next_obj }}">Next Video</a>';
+    } else {
         btn.innerHTML = "Retry";
-        btn.addEventListener("click", function() {
-            location.reload();
-        });
+        btn.addEventListener("click", () => location.reload());
     }
-
 </script>

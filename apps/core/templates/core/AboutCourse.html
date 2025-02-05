@@ -15,7 +15,7 @@
                     alt="{{ course.name }}">
                 <div class="card-body">
                     <h1 class="card-title display-5">{{ course.name }}</h1>
-                    <p class="card-text lead">{{ course.description }}</p>
+                    <p class="card-text lead">{{ course.description|linebreaks }}</p>
                     <p class="card-text text-muted">Instructor: {{ course.instructor.full_name }}</p>
 
                     <!-- Pricing Section -->
