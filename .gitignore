@@ -10,3 +10,5 @@ media/hls/*
 .idea
 erd.drawio
 UseCase.drawio
+celerybeat-schedule
+chromedriver.exe
