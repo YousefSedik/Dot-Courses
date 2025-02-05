@@ -20,7 +20,7 @@
 
         <!-- Cart Dropdown -->
         <li class="nav-item dropdown" id="cartDropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="cartButton" role="button">
+          <a class="nav-link dropdown-toggle" href="{% url 'core:Cart' %}" id="cartButton" role="button">
             <i class="fas fa-shopping-cart"></i> Cart (<span id="counter">{{ cart_counter }}</span>)
           </a>
           <ul class="dropdown-menu p-3" id="cartItems" aria-labelledby="cartButton" style="min-width: 250px;">
