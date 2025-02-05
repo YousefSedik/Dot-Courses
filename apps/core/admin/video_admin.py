@@ -12,7 +12,7 @@ class VideoAdmin(BaseAdmin):
     list_filter = (VideoCourseFilter, )
     
     class Media:
-        js = ("js/video_admin.js",)
+        js = ("js/video_admin.js", 'js/video_upload.js')
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
