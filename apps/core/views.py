@@ -1,4 +1,4 @@
-from .models import Course, Cart, Video, Question, Grade, Purchase, Rate, Certificate
+from .models import Course, Cart, Video, Question, Grade, Purchase, Rate, Certificate, UserCourseProgress
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, View, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -61,8 +61,7 @@ class CartView(ListView):
         for obj in context["courses"]:
             if obj.price:
                 total_price += float(obj.final_price)
-
-        context["total_price"] = total_price
+        context["total_price"] = total_price.__round__(2)
         return context
 
 
@@ -160,6 +159,13 @@ class VideoView(LoginRequiredMixin, ListView):
         context["video"] = Video.objects.filter(
             course__slug=course_slug, counter=video_no
         ).first()
+        context["progress"] = (
+            UserCourseProgress.objects.filter(
+                student=self.request.user, video=context["video"]
+            )
+            .values("progress")
+            .first()
+        )
         context["course"] = Course.objects.get(slug=course_slug)
         has_certificate = Certificate.objects.filter(
             student=self.request.user, course=context["course"]
