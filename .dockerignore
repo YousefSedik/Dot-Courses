@@ -1,3 +1,5 @@
-.venv
+venv
 media/videos/
 db.sqlite3
+media/thumbnails/*
+chromedriver.exe
