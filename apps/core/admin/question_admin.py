@@ -1,7 +1,7 @@
 from .base_admin import BaseAdmin 
 from ..models import Question, Video
 from django.contrib import admin
-from ..forms import QuestionAdminForm
+from .forms import QuestionAdminForm
 from .filters import QuestionCourseFilter, QuestionVideoFilter
 
 
