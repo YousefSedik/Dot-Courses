@@ -63,20 +63,27 @@
                 <div class="card-body">
                     <h5 class="card-title mb-4">Course Information</h5>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Category</span>
-                            <span class="text-muted">{{ course.category.name | title }}</span>
+                        <li class="list-group-item">
+                            <div class="d-flex flex-column">
+                                <strong>Categories:</strong>
+                                <div class="mt-2 d-flex flex-wrap gap-2">
+                                    {% for category in course.categories.all %}
+                                    <span class="badge bg-primary text-white px-3 py-2 mt-1 md-1 ml-1 mr-1">{{ category | title }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
                         </li>
+
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Duration</span>
+                            <strong>Duration</strong>
                             <span class="text-muted">{{ course.duration }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Enrolled Students</span>
+                            <strong>Enrolled Students</strong>
                             <span class="text-muted">{{ course.enrolled_counter }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>Rating</span>
+                            <strong>Rating</strong>
                             <span class="text-muted">{{ course.rate }} / 5</span>
                         </li>
                     </ul>

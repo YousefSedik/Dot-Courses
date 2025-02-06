@@ -21,7 +21,7 @@ def create_checkout_session(request):
         line_items = [
             {
                 "price_data": {
-                    "currency": "egp",
+                    "currency": "usd",
                     "product_data": {"name": cart_obj.course.name},
                     "unit_amount": int(cart_obj.course.final_price) * 100,
                 },
@@ -47,6 +47,7 @@ def create_checkout_session(request):
 
         return redirect(checkout_session.url, code=303)
     except Exception as e:
+        print(e)
         return redirect("core:home")
 
 

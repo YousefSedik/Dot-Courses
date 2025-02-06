@@ -48,7 +48,7 @@ class Course(models.Model):
         null=True, default="default.jpeg/", upload_to="thumbnail/"
     )
     enrolled_counter = models.IntegerField(default=0)
-    category = models.ForeignKey(Category, on_delete=models.RestrictedError)
+    categories = models.ManyToManyField(Category, blank=True, null=True, related_name="courses")
     duration = models.DurationField(default=timedelta)
     rating_sum = models.IntegerField(default=0)
     rating_added_counter = models.IntegerField(default=0)

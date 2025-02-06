@@ -10,5 +10,5 @@ from .purchase_admin import *
 from .question_admin import *
 from .video_admin import *
 from .rate_admin import *
-
+from .user_course_progress_admin import *
 from .filters import *

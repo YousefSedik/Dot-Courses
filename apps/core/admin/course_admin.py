@@ -2,7 +2,6 @@ from .base_admin import BaseAdmin
 from ..models import Course
 from django.contrib import admin
 
-
 @admin.register(Course)
 class CourseAdmin(BaseAdmin):
     fields = [
@@ -12,7 +11,7 @@ class CourseAdmin(BaseAdmin):
         "price",
         "discount",
         "thumbnail",
-        "category",
+        "categories",
         "duration",
         "enrolled_counter",
         "instructor",
