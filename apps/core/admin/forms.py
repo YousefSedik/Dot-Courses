@@ -1,5 +1,5 @@
 from django import forms
-from apps.core.models import Question, Choice, Video
+from apps.core.models import Question, Choice, Video, Course
 
 
 class QuestionAdminForm(forms.ModelForm):
@@ -15,7 +15,7 @@ class QuestionAdminForm(forms.ModelForm):
             )
         else:
             self.fields["right_answer"].queryset = Choice.objects.none()
-
+        self.fields["right_answer"].help_text = "press 'Save and continue editing' below to view updated choice list"
 
 class VideoModelForm(forms.ModelForm):
     class Meta:

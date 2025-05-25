@@ -7,17 +7,17 @@ from .filters import VideoCourseFilter
 
 @admin.register(Video)
 class VideoAdmin(BaseAdmin):
-    readonly_fields = []
+    readonly_fields = ["status"]
     list_display = ['course', 'counter']
     list_filter = (VideoCourseFilter, )
-    
+    exclude = ["master_playlist"]
     class Media:
         js = ("js/video_admin.js", 'js/video_upload.js')
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
             return self.readonly_fields + ['video']
-        return self.readonly_fields + ['status', 'master_playlist']
+        return self.readonly_fields
 
     def get_queryset(self, request, **kwargs):
         qs = super().get_queryset(request, **kwargs)
